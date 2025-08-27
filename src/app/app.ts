@@ -1,29 +1,30 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
+import { provideHlmDatePickerConfig } from '@spartan-ng/helm/date-picker';
+import { DateTime } from 'luxon';
+import { ShowToaster } from "./shared/toaster";
+import { ToasterService } from './services/toaster-service';
 import { HlmButton } from '@spartan-ng/helm/button';
-import { HlmH1 } from '@spartan-ng/helm/typography';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, HlmButton, HlmH1],
+  imports: [RouterOutlet, RouterLink, ShowToaster, HlmButton],
+  providers: [provideHlmDatePickerConfig({ formatDate: (date: Date) => DateTime.fromJSDate(date).toFormat('MMMM dd, yyyy') }),],
   template: `
     <div class="min-h-screen flex flex-col bg-background text-foreground">
       <header class="bg-card shadow-sm z-10 sticky top-0">
         <div class="container mx-auto px-4 py-3 flex items-center justify-between">
           <a routerLink="/home" class="flex items-center gap-2 text-2xl font-bold text-primary-foreground">
-            <h1 hlmH1 class="!text-2xl !leading-none text-primary">IdeaVault</h1>
+            <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <span class="text-white font-bold text-sm">IV</span>
+              </div>
+              <h1 class="text-xl font-semibold text-gray-900">IdeaVault</h1>
           </a>
-          <nav>
-            <a hlmBtn variant="ghost" routerLink="/home" routerLinkActive="bg-accent text-accent-foreground"
-              >Home
-            </a>
-            <a hlmBtn variant="ghost" routerLink="/tasks" routerLinkActive="bg-accent text-accent-foreground"
-              >Tasks
-            </a>
-          </nav>
         </div>
       </header>
+      
       <main class="container mx-auto p-4 flex-grow">
+        <show-sonner/>
         <router-outlet></router-outlet>
       </main>
     </div>

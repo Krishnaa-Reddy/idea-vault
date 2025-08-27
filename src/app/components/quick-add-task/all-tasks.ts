@@ -1,18 +1,22 @@
 import { Component, inject, model, effect } from '@angular/core';
-import { provideIcons } from '@ng-icons/core';
-import { lucideCheck, lucideChevronDown, lucidePencil } from '@ng-icons/lucide';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideCheck, lucideLeaf, lucidePencil, lucideFlame, lucideActivity } from '@ng-icons/lucide';
 import { BrnCommandImports } from '@spartan-ng/brain/command';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmCommandImports } from '@spartan-ng/helm/command';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { BrnSelectImports } from '@spartan-ng/brain/select';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
+import { HlmTooltipTrigger } from '@spartan-ng/helm/tooltip';
 import { EditDialog } from './edit-dialog';
 import { AlertDialog } from './alert-dialog';
 import { AddTask } from './add-task';
-import { TaskService } from '../../core/services/task.service';
+import { isToday, TaskService } from '../../services/task.service';
 import { DatePipe, NgClass } from '@angular/common';
-import { Task, Priority } from '../../core/models/task.interface';
+import { Priority, Status } from '../../core/models/task.interface';
+import { Task } from '../../services/supabase/tasks.supabase';
+import { HighlightBadge } from '../../directives/new-highlight';
+import { HlmIcon } from '@spartan-ng/helm/icon';
 
 @Component({
   selector: 'spartan-all-tasks',
@@ -22,14 +26,18 @@ import { Task, Priority } from '../../core/models/task.interface';
     BrnSelectImports,
     HlmSelectImports,
     HlmCardImports,
+    HighlightBadge,
+    HlmTooltipTrigger,
     NgClass,
     HlmInput,
     EditDialog,
     AlertDialog,
     AddTask,
     DatePipe,
+    NgIcon,
+    HlmIcon,
   ],
-  providers: [provideIcons({ lucideCheck, lucideChevronDown, lucidePencil })],
+  providers: [provideIcons({ lucideCheck, lucideLeaf, lucidePencil, lucideFlame, lucideActivity })],
   template: `
     <section>
       <div class="flex justify-between items-center">
@@ -37,7 +45,7 @@ import { Task, Priority } from '../../core/models/task.interface';
         <add-task />
       </div>
 
-      <div class="mb-6 flex flex-col sm:flex-row items-center gap-4 mt-6">
+      <div class="my-8 flex flex-col sm:flex-row items-center gap-4">
         <input
           hlmInput
           placeholder="Search tasks..."
@@ -45,7 +53,12 @@ import { Task, Priority } from '../../core/models/task.interface';
           class="w-full sm:flex-grow text-base p-2 rounded-md border-input"
         />
         <div class="grid gap-2 flex-1">
-          <brn-select (valueChange)="onFilter($event)" class="inline-block" placeholder="Priority" multiple>
+          <brn-select
+            (valueChange)="onFilter($event)"
+            class="inline-block w-48"
+            placeholder="Priority"
+            multiple
+          >
             <hlm-select-trigger class="w-full">
               <hlm-select-value />
             </hlm-select-trigger>
@@ -56,48 +69,69 @@ import { Task, Priority } from '../../core/models/task.interface';
             </hlm-select-content>
           </brn-select>
         </div>
+        <div class="grid gap-2 flex-1">
+          <brn-select
+            class="inline-block"
+            (valueChange)="onStatusFilter($event)"
+            placeholder="Status"
+            multiple
+          >
+            <hlm-select-trigger class="w-48">
+              <hlm-select-value />
+            </hlm-select-trigger>
+            <hlm-select-content>
+              <hlm-option value="new">New</hlm-option>
+              <hlm-option value="pending">Pending</hlm-option>
+              <hlm-option value="completed">Completed</hlm-option>
+              <hlm-option value="archived">Archived</hlm-option>
+            </hlm-select-content>
+          </brn-select>
+        </div>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
         @for (task of tasks(); track task.id) {
         <section
           hlmCard
+          class="group"
+          [highlightBadge]="isTaskNew(task.createdAt)"
           [ngClass]="{
             'border-green-500 shadow-md': task.completed,
-            'opacity-80': task.archived,
+            'opacity-60': task.archived,
             'w-full transition-all duration-200': true,
           }"
         >
           <div hlmCardContent class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="flex flex-col">
-                <div class="flex gap-2 items-center">
-                  <span>
-                    @if (task.priority === 'High') { ⚡ } @if (task.priority === 'Medium') { ⏳ }
-                    @if (task.priority === 'Low') { ✅ }
+            <div class="flex items-center gap-3 flex-auto min-w-0">
+              <div class="flex flex-col w-full">
+                <div class="flex gap-2 items-center flex-auto min-w-0">
+                  <span class="flex-shrink-0">
+                    @if (task.priority === 'High') { <ng-icon hlmTooltipTrigger="High" hlm name="lucideFlame" color="red" fill /> }
+                    @if (task.priority === 'Medium') { <ng-icon  hlmTooltipTrigger="Medium" hlm name="lucideActivity" color="orange" /> }
+                    @if (task.priority === 'Low') { <ng-icon  hlmTooltipTrigger="Low" hlm name="lucideLeaf" color="green" /> }
                   </span>
-
-                  @if (task.url) {
-                  <a
-                    href="{{ task.url }}"
-                    target="_blank"
-                    [ngClass]="{
-                      'text-lg font-semibold underline': true,
-                      'line-through text-gray-500': task.completed
-                    }"
-                  >
-                    {{ task.description }}
-                  </a>
-                  } @else {
-                  <h3
-                    [ngClass]="{
-                      'text-lg font-semibold': true,
-                      'line-through text-gray-500': task.completed
-                    }"
-                  >
-                    {{ task.description }}
-                  </h3>
-                  }
+                  <div class="flex-1 min-w-0">
+                    @if (task.url) {
+                    <a
+                      href="{{ task.url }}"
+                      target="_blank"
+                      rel="noopener"
+                      class="block text-lg font-semibold text-blue-600 hover:underline truncate cursor-pointer"
+                      [ngClass]="{ 'line-through text-gray-500': task.completed }"
+                    >
+                      {{ task.description }}
+                    </a>
+                    } @else {
+                    <h3
+                      [hlmTooltipTrigger]="task.description"
+                      [aria-describedby]="task.description"
+                      class="block text-lg font-semibold truncate"
+                      [ngClass]="{ 'line-through text-gray-500': task.completed }"
+                    >
+                      {{ task.description }}
+                    </h3>
+                    }
+                  </div>
                 </div>
 
                 @if (task.reminderTime) {
@@ -108,7 +142,9 @@ import { Task, Priority } from '../../core/models/task.interface';
               </div>
             </div>
 
-            <div class="flex items-center gap-3">
+            <div
+              class='flex items-center gap-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100'
+            >
               <edit-task-dialog [task]="task" />
               <alert-dialog [task]="task" />
             </div>
@@ -129,10 +165,9 @@ export class TasksComponent {
 
   filter$ = model([]);
 
-
   constructor() {
     effect(() => {
-       console.log(this.filter$())
+      console.log(this.filter$());
     });
   }
 
@@ -145,13 +180,22 @@ export class TasksComponent {
 
   // TODO: Attach this to spart-ui select.
   onFilter(priorities: Priority[]) {
-    console.log(priorities)
-    this._taskService.setFilterPriorities(priorities);
+    console.log(priorities);
+    this._taskService.setPriorityFilters(priorities);
+  }
+
+  onStatusFilter(statuses: Status[]) {
+    console.log(statuses);
+    this._taskService.setStatusFilters(statuses);
   }
 
   // TODO: Use this at the right time - in the right usecase
   onRescheduleReminder(task: Task, newReminderTime: Date) {
     const updatedTask = { ...task, reminderTime: newReminderTime };
-    this._taskService.rescheduleReminder(updatedTask);
+    // this._taskService.rescheduleReminder(null);
+  }
+
+  isTaskNew(createdAt: string | Date) {
+    return isToday(createdAt);
   }
 }

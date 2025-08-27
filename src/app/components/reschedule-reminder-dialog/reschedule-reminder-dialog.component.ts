@@ -15,11 +15,10 @@ import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmDatePicker } from '@spartan-ng/helm/date-picker';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmLabel } from '@spartan-ng/helm/label';
-import { Task } from '../../core/models/task.interface';
+import { Task } from '../../services/supabase/tasks.supabase';
 
 
 // TODO: Revisit this entire component. This maybe usefula and may not be
-
 @Component({
   selector: 'app-reschedule-reminder-dialog',
   standalone: true,
@@ -93,8 +92,8 @@ export class RescheduleReminderDialogComponent {
   constructor() {
     const initialDate = this.task().reminderTime ? new Date(this.task().reminderTime!) : new Date();
     this.newReminderDateControl.setValue(initialDate);
-    const initialTime = this.task().reminderTime ? this.formatTime(this.task().reminderTime!) : '09:00';
-    this.newReminderTimeControl.setValue(initialTime);
+    // const initialTime = this.task().reminderTime ? this.formatTime(this.task().reminderTime!) : '09:00';
+    this.newReminderTimeControl.setValue(null);
   }
 
   private formatTime(date: Date): string {

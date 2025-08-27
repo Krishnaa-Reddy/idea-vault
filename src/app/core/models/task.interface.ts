@@ -1,12 +1,11 @@
 
 export type Priority = 'High' | 'Medium' | 'Low';
-
-export interface Task {
-  id: string;
-  description: string;
-  url?: string;
-  priority: Priority;
-  reminderTime?: Date;
-  completed: boolean;
-  archived: boolean;
-}
+/**
+ * Defines the possible statuses for a task.
+ * - 'new': Tasks created on the current day.
+ * - 'pending': Tasks that are not new, not completed, and not archived.
+ * - 'completed': Tasks marked as completed.
+ * - 'archived': Tasks marked as archived.
+ * 
+ */
+export type Status = 'new' | 'pending' | 'completed' | 'archived';

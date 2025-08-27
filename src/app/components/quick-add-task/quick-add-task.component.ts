@@ -5,8 +5,9 @@ import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HlmLabel } from '@spartan-ng/helm/label';
 import { HlmRadioGroup, HlmRadio } from '@spartan-ng/helm/radio-group';
 import { HlmDatePicker } from '@spartan-ng/helm/date-picker';
-import { Priority, Task } from '../../core/models/task.interface';
-import { TaskService } from '../../core/services/task.service';
+import { Priority } from '../../core/models/task.interface';
+import { TaskService } from '../../services/task.service';
+import { Task, TaskInsert } from '../../services/supabase/tasks.supabase';
 
 @Component({
   selector: 'app-quick-add-task',
@@ -105,11 +106,10 @@ export class QuickAddTaskComponent {
         finalReminderTime.setHours(hours, minutes, 0, 0);
       }
 
-      const newTask: Task = {
-        id: '',
+      const newTask: TaskInsert = {
         description: description,
         priority: priority,
-        reminderTime: finalReminderTime,
+        reminderTime: 'as',
         completed: false,
         archived: false,
         // TODO: not just starts with. but also has to be anywhere in the the entire description
@@ -117,7 +117,6 @@ export class QuickAddTaskComponent {
       };
 
       this._taskService.addTask(newTask);
-      console.log('Task added:', newTask);
 
       this.taskControl.reset();
       this.priorityControl.setValue('Medium');
