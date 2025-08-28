@@ -176,9 +176,6 @@ export class TasksComponent {
     this._taskService.setSearchQuery(query);
   }
 
-  // TODO: Handle moving a task to archives. in UI as well.
-
-  // TODO: Attach this to spart-ui select.
   onFilter(priorities: Priority[]) {
     console.log(priorities);
     this._taskService.setPriorityFilters(priorities);
@@ -187,12 +184,6 @@ export class TasksComponent {
   onStatusFilter(statuses: Status[]) {
     console.log(statuses);
     this._taskService.setStatusFilters(statuses);
-  }
-
-  // TODO: Use this at the right time - in the right usecase
-  onRescheduleReminder(task: Task, newReminderTime: Date) {
-    const updatedTask = { ...task, reminderTime: newReminderTime };
-    // this._taskService.rescheduleReminder(null);
   }
 
   isTaskNew(createdAt: string | Date) {
