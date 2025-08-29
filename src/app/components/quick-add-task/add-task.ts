@@ -17,9 +17,8 @@ import { HlmIcon } from '@spartan-ng/helm/icon';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmLabel } from '@spartan-ng/helm/label';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
-import { Priority } from '../../core/models/task.interface';
+import { Priority, TaskInsert } from '../../core/models/task.interface';
 import { TaskService } from '../../services/task.service';
-import { TaskInsert } from '../../services/supabase/tasks.supabase';
 
 /**
  * You will be reminded at <specified-time>

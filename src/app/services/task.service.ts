@@ -1,16 +1,8 @@
-import {
-  Injectable,
-  signal,
-  computed,
-  inject,
-  Signal,
-  linkedSignal,
-  WritableSignal,
-} from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { Task, TaskInsert, TasksSupabase, TaskUpdate } from './supabase/tasks.supabase';
-import { tap } from 'rxjs';
-import { Status, Priority } from '../core/models/task.interface';
+import { computed, effect, inject, Injectable, linkedSignal, signal } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { map, tap } from 'rxjs';
+import { Priority, Status, Task, TaskInsert, TaskUpdate } from '../core/models/task.interface';
+import { TasksSupabase } from './supabase/tasks.supabase';
 import { ToasterService } from './toaster-service';
 
 const testTasks: Task[] = [
@@ -78,14 +70,58 @@ const matchStatus = (status: Status, task: Task) => {
 
 @Injectable({ providedIn: 'root' })
 export class TaskService extends TasksSupabase {
-
   private toaster = inject(ToasterService);
 
-  private _tasksResponse = toSignal(this.select());
-  private _tasks: WritableSignal<Task[]> = linkedSignal(
-    () => this._tasksResponse()?.data || []
-    // () => testTasks
-  );
+  // NOTE: We can set/update tasks/resource as well with this.
+  // we can use this to replace - somehow below tasks phase.
+
+  handleError(error?: Error | null) {
+    if (error) {
+      this.toaster.setToast({
+        message: error.message,
+        dismissible: true,
+        closeButton: true,
+        type: 'warning',
+      });
+    }
+  }
+
+  /// NOTE: The biggest problem with rxResource is
+  // They now throw an error if no resource and we try to access value.
+  // That's where the root cause; this was not the behavior in v19
+  // New work around: have to check hasValue() before we access it.
+  private tasksResource = rxResource<Task[], undefined>({
+    stream: () =>
+      this.select().pipe(
+        tap((res) => this.handleError(res?.error)),
+        map((res) => res?.data ?? [])
+
+        // With the new change in rxResource. I think this is the advantage.
+        // I dont explcitly have to catch the error. value() throws it.
+        // NOTE: Only thing I have to remember is to check hasValue; "everytime" before accessing it!!
+
+        // catchError((err: Error) => {
+        //   throw err;
+        // })
+      ),
+  }).asReadonly();
+
+  // What's happening here?
+  // I am throwing the error in the resource. It has been thrown by .value()
+  public _tasks = linkedSignal<Task[]>(() => {
+    if (this.tasksResource.hasValue()) return this.tasksResource.value();
+    return [];
+  });
+
+  tasksLoading = this.tasksResource.isLoading;
+  tasksError = this.tasksResource.error;
+
+  constructor() {
+    super();
+    effect(() => {
+      this.handleError(this.tasksResource.error());
+    });
+  }
 
   private _searchQuery = signal<string>('');
   private _filterPriority = signal<Priority[]>([]);
@@ -117,19 +153,17 @@ export class TaskService extends TasksSupabase {
         if (res.data) {
           this._tasks.update((tasks) => [...res.data, ...tasks]);
         }
-
         this.toaster.setToast({
           message: 'Task added successfully',
-          type: 'success'
+          type: 'success',
         });
-
       })
     );
   }
 
   updateTask(updatedTask: TaskUpdate) {
     return this.update(updatedTask.id!, updatedTask).pipe(
-      tap(res => {
+      tap((res) => {
         if (res.data) {
           this._tasks.update((tasks) =>
             tasks.map((task) => (task.id === updatedTask.id ? res.data![0] : task))
@@ -137,7 +171,7 @@ export class TaskService extends TasksSupabase {
         }
         this.toaster.setToast({
           message: 'Task updated successfully',
-          type: 'info'
+          type: 'info',
         });
       })
     );
@@ -149,68 +183,15 @@ export class TaskService extends TasksSupabase {
         this._tasks.update((tasks) => tasks.filter((task) => task.id !== id));
         this.toaster.setToast({
           message: 'Task deleted successfully',
-          type: 'info'
+          type: 'info',
         });
       },
       error: (error) => {
         console.error('Error deleting task:', error);
         this.toaster.setToast({
           message: 'Failed to delete error',
-          type: 'error'
+          type: 'error',
         });
-      },
-    });
-  }
-
-  markTaskAsComplete(id: number) {
-    const currentTask = this._tasks().find((task) => task.id === id);
-    if (currentTask) {
-      const updatedTask = { ...currentTask, completed: !currentTask.completed };
-      this.update(id, { completed: updatedTask.completed }).subscribe({
-        next: (response) => {
-          if (response.data) {
-            this._tasks.update((tasks) =>
-              tasks.map((task) => (task.id === id ? response.data![0] : task))
-            );
-          }
-        },
-        error: (error) => {
-          console.error('Error marking task as complete:', error);
-        },
-      });
-    }
-  }
-
-  archiveTask(id: number) {
-    const currentTask = this._tasks().find((task) => task.id === id);
-    if (currentTask) {
-      const updatedTask = { ...currentTask, archived: !currentTask.archived };
-      this.update(id, { archived: updatedTask.archived }).subscribe({
-        next: (response) => {
-          if (response.data) {
-            this._tasks.update((tasks) =>
-              tasks.map((task) => (task.id === id ? response.data![0] : task))
-            );
-          }
-        },
-        error: (error) => {
-          console.error('Error archiving task:', error);
-        },
-      });
-    }
-  }
-
-  rescheduleReminder(updatedTask: Task) {
-    this.update(updatedTask.id!, updatedTask).subscribe({
-      next: (response) => {
-        if (response.data) {
-          this._tasks.update((tasks) =>
-            tasks.map((task) => (task.id === updatedTask.id ? response.data![0] : task))
-          );
-        }
-      },
-      error: (error) => {
-        console.error('Error rescheduling reminder:', error);
       },
     });
   }

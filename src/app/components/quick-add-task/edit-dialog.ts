@@ -22,8 +22,8 @@ import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmLabel } from '@spartan-ng/helm/label';
 import { TaskService } from '../../services/task.service';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Task } from '../../services/supabase/tasks.supabase';
 import { HlmDatePicker } from '@spartan-ng/helm/date-picker';
+import { Task } from '../../core/models/task.interface';
 
 @Component({
   selector: 'edit-task-dialog',

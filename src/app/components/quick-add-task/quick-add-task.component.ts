@@ -5,9 +5,8 @@ import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HlmLabel } from '@spartan-ng/helm/label';
 import { HlmRadioGroup, HlmRadio } from '@spartan-ng/helm/radio-group';
 import { HlmDatePicker } from '@spartan-ng/helm/date-picker';
-import { Priority } from '../../core/models/task.interface';
+import { Priority, TaskInsert } from '../../core/models/task.interface';
 import { TaskService } from '../../services/task.service';
-import { Task, TaskInsert } from '../../services/supabase/tasks.supabase';
 
 @Component({
   selector: 'app-quick-add-task',

@@ -1,6 +1,12 @@
 import { Component, inject, model, effect } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideCheck, lucideLeaf, lucidePencil, lucideFlame, lucideActivity } from '@ng-icons/lucide';
+import {
+  lucideCheck,
+  lucideLeaf,
+  lucidePencil,
+  lucideFlame,
+  lucideActivity,
+} from '@ng-icons/lucide';
 import { BrnCommandImports } from '@spartan-ng/brain/command';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmCommandImports } from '@spartan-ng/helm/command';
@@ -14,9 +20,9 @@ import { AddTask } from './add-task';
 import { isToday, TaskService } from '../../services/task.service';
 import { DatePipe, NgClass } from '@angular/common';
 import { Priority, Status } from '../../core/models/task.interface';
-import { Task } from '../../services/supabase/tasks.supabase';
 import { HighlightBadge } from '../../directives/new-highlight';
 import { HlmIcon } from '@spartan-ng/helm/icon';
+import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
 
 @Component({
   selector: 'spartan-all-tasks',
@@ -36,6 +42,7 @@ import { HlmIcon } from '@spartan-ng/helm/icon';
     DatePipe,
     NgIcon,
     HlmIcon,
+    HlmSkeleton,
   ],
   providers: [provideIcons({ lucideCheck, lucideLeaf, lucidePencil, lucideFlame, lucideActivity })],
   template: `
@@ -44,7 +51,6 @@ import { HlmIcon } from '@spartan-ng/helm/icon';
         <h2 class="text-xl font-semibold">Tasks</h2>
         <add-task />
       </div>
-
       <div class="my-8 flex flex-col sm:flex-row items-center gap-4">
         <input
           hlmInput
@@ -52,63 +58,83 @@ import { HlmIcon } from '@spartan-ng/helm/icon';
           (input)="onSearch($event)"
           class="w-full sm:flex-grow text-base p-2 rounded-md border-input"
         />
-        <div class="grid gap-2 flex-1">
-          <brn-select
-            (valueChange)="onFilter($event)"
-            class="inline-block w-48"
-            placeholder="Priority"
-            multiple
-          >
-            <hlm-select-trigger class="w-full">
-              <hlm-select-value />
-            </hlm-select-trigger>
-            <hlm-select-content>
-              <hlm-option value="High">High</hlm-option>
-              <hlm-option value="Medium">Medium</hlm-option>
-              <hlm-option value="Low">Low</hlm-option>
-            </hlm-select-content>
-          </brn-select>
-        </div>
-        <div class="grid gap-2 flex-1">
-          <brn-select
-            class="inline-block"
-            (valueChange)="onStatusFilter($event)"
-            placeholder="Status"
-            multiple
-          >
-            <hlm-select-trigger class="w-48">
-              <hlm-select-value />
-            </hlm-select-trigger>
-            <hlm-select-content>
-              <hlm-option value="new">New</hlm-option>
-              <hlm-option value="pending">Pending</hlm-option>
-              <hlm-option value="completed">Completed</hlm-option>
-              <hlm-option value="archived">Archived</hlm-option>
-            </hlm-select-content>
-          </brn-select>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
+          <div class="grid gap-2">
+            <brn-select
+              (valueChange)="onFilter($event)"
+              class="inline-block w-full"
+              placeholder="Priority"
+              multiple
+            >
+              <hlm-select-trigger class="w-full">
+                <hlm-select-value />
+              </hlm-select-trigger>
+              <hlm-select-content>
+                <hlm-option value="High">High</hlm-option>
+                <hlm-option value="Medium">Medium</hlm-option>
+                <hlm-option value="Low">Low</hlm-option>
+              </hlm-select-content>
+            </brn-select>
+          </div>
+          <div class="grid gap-2">
+            <brn-select
+              class="inline-block w-full"
+              (valueChange)="onStatusFilter($event)"
+              placeholder="Status"
+              multiple
+            >
+              <hlm-select-trigger class="w-full">
+                <hlm-select-value />
+              </hlm-select-trigger>
+              <hlm-select-content>
+                <hlm-option value="new">New</hlm-option>
+                <hlm-option value="pending">Pending</hlm-option>
+                <hlm-option value="completed">Completed</hlm-option>
+                <hlm-option value="archived">Archived</hlm-option>
+              </hlm-select-content>
+            </brn-select>
+          </div>
         </div>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
-        @for (task of tasks(); track task.id) {
+        @if(tasksLoading()) { @for (i of [1,2,3,4,5,6]; track i) {
+        <section hlmCard class="group w-full">
+          <div hlmCardContent class="flex flex-col gap-3">
+            <hlm-skeleton class="h-6 w-3/4" />
+            <hlm-skeleton class="h-4 w-1/2" />
+            <div class="flex items-center gap-2">
+              <hlm-skeleton class="h-4 w-1/4" />
+              <hlm-skeleton class="h-4 w-1/4" />
+            </div>
+          </div>
+        </section>
+        } } @else if (tasksError()) {
+        <p class="text-muted-foreground text-center col-span-full">
+          Something's wrong. Please try later.
+        </p>
+        } @else { @for (task of tasks(); track task.id) {
         <section
           hlmCard
           class="group"
           [highlightBadge]="isTaskNew(task.createdAt)"
           [ngClass]="{
-            'border-green-500 shadow-md': task.completed,
-            'opacity-60': task.archived,
-            'w-full transition-all duration-200': true,
-          }"
+              'border-green-500 shadow-md': task.completed,
+              'opacity-60': task.archived,
+              'w-full transition-all duration-200': true,
+            }"
         >
           <div hlmCardContent class="flex items-center justify-between">
             <div class="flex items-center gap-3 flex-auto min-w-0">
               <div class="flex flex-col w-full">
                 <div class="flex gap-2 items-center flex-auto min-w-0">
                   <span class="flex-shrink-0">
-                    @if (task.priority === 'High') { <ng-icon hlmTooltipTrigger="High" hlm name="lucideFlame" color="red" fill /> }
-                    @if (task.priority === 'Medium') { <ng-icon  hlmTooltipTrigger="Medium" hlm name="lucideActivity" color="orange" /> }
-                    @if (task.priority === 'Low') { <ng-icon  hlmTooltipTrigger="Low" hlm name="lucideLeaf" color="green" /> }
+                    @if (task.priority === 'High') {
+                    <ng-icon hlmTooltipTrigger="High" hlm name="lucideFlame" color="red" fill /> }
+                    @if (task.priority === 'Medium') {
+                    <ng-icon hlmTooltipTrigger="Medium" hlm name="lucideActivity" color="orange" />
+                    } @if (task.priority === 'Low') {
+                    <ng-icon hlmTooltipTrigger="Low" hlm name="lucideLeaf" color="green" /> }
                   </span>
                   <div class="flex-1 min-w-0">
                     @if (task.url) {
@@ -143,7 +169,7 @@ import { HlmIcon } from '@spartan-ng/helm/icon';
             </div>
 
             <div
-              class='flex items-center gap-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100'
+              class="flex items-center gap-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
             >
               <edit-task-dialog [task]="task" />
               <alert-dialog [task]="task" />
@@ -154,7 +180,7 @@ import { HlmIcon } from '@spartan-ng/helm/icon';
         <p class="text-muted-foreground text-center col-span-full">
           No tasks found. Add one to proceed!
         </p>
-        }
+        } }
       </div>
     </section>
   `,
@@ -162,6 +188,8 @@ import { HlmIcon } from '@spartan-ng/helm/icon';
 export class TasksComponent {
   private _taskService = inject(TaskService);
   tasks = this._taskService.filteredTasks;
+  tasksLoading = this._taskService.tasksLoading;
+  tasksError = this._taskService.tasksError;
 
   filter$ = model([]);
 

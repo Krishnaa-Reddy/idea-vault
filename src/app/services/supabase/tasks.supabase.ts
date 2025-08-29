@@ -1,16 +1,17 @@
-import { from, share } from 'rxjs';
+import { from, share, throwError, timer, mergeMap } from 'rxjs';
 import { _supabase } from './supabase-client';
-import { Tables, TablesInsert, TablesUpdate } from '../../../database.types';
+import { Task, TaskInsert, TaskUpdate } from '../../core/models/task.interface';
 
-type TASKS_TABLE = 'tasks';
 const TASKS = 'tasks';
-
-export type Task = Tables<TASKS_TABLE>;
-export type TaskInsert = TablesInsert<TASKS_TABLE>;
-export type TaskUpdate = TablesUpdate<TASKS_TABLE>;
 
 export class TasksSupabase {
   protected select() {
+    // INFO: To mock server error
+    // return timer(500).pipe(
+    //   mergeMap(() => throwError(() => new Error('Failed to load tasks from Supabase.'))),
+    //   share()
+    // );
+
     return from(_supabase.from(TASKS).select().order('createdAt', { ascending: false }).overrideTypes<Task[]>()).pipe(
       share()
     );

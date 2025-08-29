@@ -8,7 +8,7 @@ import { HlmButton } from '@spartan-ng/helm/button';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, ShowToaster, HlmButton],
+  imports: [RouterOutlet, RouterLink, ShowToaster],
   providers: [provideHlmDatePickerConfig({ formatDate: (date: Date) => DateTime.fromJSDate(date).toFormat('MMMM dd, yyyy') }),],
   template: `
     <div class="min-h-screen flex flex-col bg-background text-foreground">

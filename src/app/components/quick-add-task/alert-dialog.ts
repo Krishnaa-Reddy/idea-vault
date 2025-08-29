@@ -15,7 +15,7 @@ import {
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmIcon } from '@spartan-ng/helm/icon';
 import { TaskService } from '../../services/task.service';
-import { Task } from '../../services/supabase/tasks.supabase';
+import { Task } from '../../core/models/task.interface';
 
 @Component({
   selector: 'alert-dialog',
