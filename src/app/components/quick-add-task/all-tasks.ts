@@ -145,16 +145,16 @@ import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
                       class="block text-lg font-semibold text-blue-600 hover:underline truncate cursor-pointer"
                       [ngClass]="{ 'line-through text-gray-500': task.completed }"
                     >
-                      {{ task.description }}
+                      {{ task.title }}
                     </a>
                     } @else {
                     <h3
                       [hlmTooltipTrigger]="task.description"
-                      [aria-describedby]="task.description"
+                      [aria-describedby]="task.title"
                       class="block text-lg font-semibold truncate"
                       [ngClass]="{ 'line-through text-gray-500': task.completed }"
                     >
-                      {{ task.description }}
+                      {{ task.title }}
                     </h3>
                     }
                   </div>

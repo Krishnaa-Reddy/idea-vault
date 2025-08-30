@@ -5,50 +5,6 @@ import { Priority, Status, Task, TaskInsert, TaskUpdate } from '../core/models/t
 import { TasksSupabase } from './supabase/tasks.supabase';
 import { ToasterService } from './toaster-service';
 
-const testTasks: Task[] = [
-  {
-    id: 1,
-    description:
-      'Buy groceries; Buy groceries;  Buy groceries; Buy groceries;  Buy groceries;  Buy groceries; ',
-    completed: false,
-    archived: false,
-    createdAt: new Date().toISOString(),
-    priority: 'High',
-    reminderTime: null,
-    url: null,
-  },
-  {
-    id: 2,
-    description: 'Finish project report',
-    completed: false,
-    archived: false,
-    createdAt: new Date().toISOString(),
-    priority: 'Medium',
-    reminderTime: null,
-    url: null,
-  },
-  {
-    id: 3,
-    description: 'Call mom',
-    completed: true,
-    archived: false,
-    createdAt: new Date().toISOString(),
-    priority: 'Low',
-    reminderTime: null,
-    url: null,
-  },
-  {
-    id: 4,
-    description: 'Go to the gym',
-    completed: false,
-    archived: true,
-    createdAt: new Date().toISOString(),
-    priority: 'High',
-    reminderTime: null,
-    url: null,
-  },
-];
-
 export const isToday = (date: string | Date) => {
   const todayMidnight = new Date();
   todayMidnight.setHours(0, 0, 0, 0);
@@ -60,8 +16,8 @@ export const isToday = (date: string | Date) => {
 const matchStatus = (status: Status, task: Task) => {
   const statusChecks: Record<Status, (task: Task) => boolean> = {
     new: (t) => isToday(t.createdAt),
-    completed: (t) => t.completed,
-    archived: (t) => t.archived,
+    completed: (t) => t.completed || false,
+    archived: (t) => t.archived || false,
     pending: (t) => !isToday(t.createdAt) && !t.completed && !t.archived,
   };
 
@@ -135,7 +91,7 @@ export class TaskService extends TasksSupabase {
 
     return allTasks.filter((task) => {
       const matchesSearch =
-        task.description.toLowerCase().includes(query) ||
+        task.title.toLowerCase().includes(query) ||
         (task.url && task.url.toLowerCase().includes(query));
       const matchesPriority =
         priorities.length === 0 ||

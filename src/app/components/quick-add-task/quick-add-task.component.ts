@@ -86,7 +86,7 @@ export class QuickAddTaskComponent {
 
   constructor() {
     const tomorrow = new Date();
-    new Date().setDate(tomorrow.getDate() + 1);
+    tomorrow.setDate(tomorrow.getDate() + 1);
     this.reminderDateControl.setValue(tomorrow);
     this.reminderTimeControl.setValue('09:00');
   }
@@ -98,20 +98,21 @@ export class QuickAddTaskComponent {
       const reminderDate = this.reminderDateControl.value;
       const reminderTime = this.reminderTimeControl.value;
 
-      let finalReminderTime: Date | undefined;
+      let finalReminderTime: string | null = null;
       if (reminderDate && reminderTime) {
         const [hours, minutes] = reminderTime.split(':').map(Number);
-        finalReminderTime = new Date(reminderDate);
-        finalReminderTime.setHours(hours, minutes, 0, 0);
+        const date = new Date(reminderDate);
+        date.setHours(hours, minutes, 0, 0);
+        finalReminderTime = date.toISOString();
       }
 
       const newTask: TaskInsert = {
+        title: description,
         description: description,
         priority: priority,
-        reminderTime: 'as',
+        reminderTime: finalReminderTime || new Date().toISOString(),
         completed: false,
         archived: false,
-        // TODO: not just starts with. but also has to be anywhere in the the entire description
         url: description.startsWith('http') ? description : undefined,
       };
 
@@ -124,8 +125,24 @@ export class QuickAddTaskComponent {
 
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
-      // this.reminderDateControl.setValue(tomorrow);
+      this.reminderDateControl.setValue(tomorrow);
       // this.reminderTimeControl.setValue('09:00');
     }
   }
 }
+
+
+// <hlm-form-field>
+// <brn-select class="inline-block" placeholder="Select some fruit" formControlName="fruit">
+//   <hlm-select-trigger class="w-80">
+//     <hlm-select-value />
+//   </hlm-select-trigger>
+//   <hlm-select-content>
+//     <hlm-select-label>Fruits</hlm-select-label>
+//     @for (option of options; track option.value) {
+//       <hlm-option [value]="option.value">{{ option.label }}</hlm-option>
+//     }
+//   </hlm-select-content>
+// </brn-select>
+// <hlm-error>The fruit is required</hlm-error>
+// </hlm-form-field>

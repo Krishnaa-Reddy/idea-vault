@@ -19,30 +19,39 @@ export type Database = {
           archived: boolean
           completed: boolean
           createdAt: string
-          description: string
+          description: string | null
           id: number
-          priority: string | null
+          isReminderSent: boolean | null
+          isWhatsappReminderSent: boolean | null
+          priority: string
           reminderTime: string | null
+          title: string
           url: string | null
         }
         Insert: {
-          archived?: boolean
-          completed?: boolean
+          archived: boolean
+          completed: boolean
           createdAt?: string
-          description?: string
+          description?: string | null
           id?: number
-          priority?: string | null
+          isReminderSent?: boolean | null
+          isWhatsappReminderSent?: boolean | null
+          priority: string
           reminderTime?: string | null
+          title: string
           url?: string | null
         }
         Update: {
           archived?: boolean
           completed?: boolean
           createdAt?: string
-          description?: string
+          description?: string | null
           id?: number
-          priority?: string | null
+          isReminderSent?: boolean | null
+          isWhatsappReminderSent?: boolean | null
+          priority?: string
           reminderTime?: string | null
+          title?: string
           url?: string | null
         }
         Relationships: []
@@ -52,7 +61,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      call_send_reminder: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
