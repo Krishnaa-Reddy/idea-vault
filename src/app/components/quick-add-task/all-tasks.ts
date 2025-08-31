@@ -6,6 +6,7 @@ import {
   lucidePencil,
   lucideFlame,
   lucideActivity,
+  lucideClock,
 } from '@ng-icons/lucide';
 import { BrnCommandImports } from '@spartan-ng/brain/command';
 import { HlmCardImports } from '@spartan-ng/helm/card';
@@ -13,7 +14,6 @@ import { HlmCommandImports } from '@spartan-ng/helm/command';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { BrnSelectImports } from '@spartan-ng/brain/select';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
-import { HlmTooltipTrigger } from '@spartan-ng/helm/tooltip';
 import { EditDialog } from './edit-dialog';
 import { AlertDialog } from './alert-dialog';
 import { AddTask } from './add-task';
@@ -23,17 +23,21 @@ import { Priority, Status } from '../../core/models/task.interface';
 import { HighlightBadge } from '../../directives/new-highlight';
 import { HlmIcon } from '@spartan-ng/helm/icon';
 import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
+import { BrnTooltipContent, BrnTooltipContentTemplate } from '@spartan-ng/brain/tooltip';
+import { HlmTooltip, HlmTooltipTrigger } from '@spartan-ng/helm/tooltip';
 
 @Component({
   selector: 'spartan-all-tasks',
   imports: [
     BrnCommandImports,
     HlmCommandImports,
+    BrnTooltipContent,
     BrnSelectImports,
     HlmSelectImports,
     HlmCardImports,
     HighlightBadge,
     HlmTooltipTrigger,
+    HlmTooltip,
     NgClass,
     HlmInput,
     EditDialog,
@@ -43,8 +47,18 @@ import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
     NgIcon,
     HlmIcon,
     HlmSkeleton,
+    BrnTooltipContentTemplate
+],
+  providers: [
+    provideIcons({
+      lucideCheck,
+      lucideClock,
+      lucideLeaf,
+      lucidePencil,
+      lucideFlame,
+      lucideActivity,
+    }),
   ],
-  providers: [provideIcons({ lucideCheck, lucideLeaf, lucidePencil, lucideFlame, lucideActivity })],
   template: `
     <section>
       <div class="flex justify-between items-center">
@@ -119,61 +133,85 @@ import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
           class="group"
           [highlightBadge]="isTaskNew(task.createdAt)"
           [ngClass]="{
-              'border-green-500 shadow-md': task.completed,
-              'opacity-60': task.archived,
-              'w-full transition-all duration-200': true,
-            }"
+            'border-green-500 shadow-md': task.completed,
+            'opacity-60': task.archived,
+            'w-full transition-all duration-200': true
+          }"
         >
-          <div hlmCardContent class="flex items-center justify-between">
-            <div class="flex items-center gap-3 flex-auto min-w-0">
-              <div class="flex flex-col w-full">
-                <div class="flex gap-2 items-center flex-auto min-w-0">
-                  <span class="flex-shrink-0">
-                    @if (task.priority === 'High') {
-                    <ng-icon hlmTooltipTrigger="High" hlm name="lucideFlame" color="red" fill /> }
-                    @if (task.priority === 'Medium') {
-                    <ng-icon hlmTooltipTrigger="Medium" hlm name="lucideActivity" color="orange" />
-                    } @if (task.priority === 'Low') {
-                    <ng-icon hlmTooltipTrigger="Low" hlm name="lucideLeaf" color="green" /> }
-                  </span>
-                  <div class="flex-1 min-w-0">
-                    @if (task.url) {
-                    <a
-                      href="{{ task.url }}"
-                      target="_blank"
-                      rel="noopener"
-                      class="block text-lg font-semibold text-blue-600 hover:underline truncate cursor-pointer"
-                      [ngClass]="{ 'line-through text-gray-500': task.completed }"
-                    >
-                      {{ task.title }}
-                    </a>
-                    } @else {
-                    <h3
-                      [hlmTooltipTrigger]="task.description"
-                      [aria-describedby]="task.title"
-                      class="block text-lg font-semibold truncate"
-                      [ngClass]="{ 'line-through text-gray-500': task.completed }"
-                    >
-                      {{ task.title }}
-                    </h3>
-                    }
-                  </div>
-                </div>
-
-                @if (task.reminderTime) {
-                <p class="text-sm text-gray-500">
-                  Due: {{ task.reminderTime | date : 'MMM d, y, h:mm a' }}
-                </p>
+          <div hlmCardContent class="flex flex-col">
+            <div class="flex items-end justify-between gap-3 w-full">
+              <div class="flex items-center gap-2 min-w-0 flex-1">
+                @if (priorityIcon(task.priority); as prio) {
+                <span class="flex-shrink-0">
+                  <ng-icon
+                    hlm
+                    [hlmTooltipTrigger]="task.priority"
+                    [name]="prio.icon"
+                    [color]="prio.color"
+                  />
+                </span>
                 }
+                <div class="flex-1 min-w-0">
+                  @if (task.url) {
+                  <a
+                    href="{{ task.url }}"
+                    target="_blank"
+                    rel="noopener"
+                    class="block text-lg font-semibold text-blue-600 hover:underline truncate cursor-pointer"
+                    [ngClass]="{ 'line-through text-gray-500': task.completed }"
+                  >
+                    {{ task.title }}
+                  </a>
+                  } @else {
+                  <h3
+                    [hlmTooltipTrigger]="task.description"
+                    [aria-describedby]="task.title"
+                    class="block text-lg font-semibold truncate"
+                    [ngClass]="{ 'line-through text-gray-500': task.completed }"
+                  >
+                    {{ task.title }}
+                  </h3>
+                  }
+                </div>
+              </div>
+              <div
+                class="flex items-center gap-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+              >
+                <edit-task-dialog [task]="task" />
+                <alert-dialog [task]="task" />
               </div>
             </div>
+            @if (task.description) {
 
-            <div
-              class="flex items-center gap-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-            >
-              <edit-task-dialog [task]="task" />
-              <alert-dialog [task]="task" />
+            <hlm-tooltip>
+              <div
+                class="text-sm text-muted-foreground truncate"
+                hlmTooltipTrigger
+              >
+                {{ task.description }}
+              </div>
+              <div
+                *brnTooltipContent
+                class="max-w-xl break-words whitespace-pre-line text-wrap"
+                style="word-break: break-word; white-space: pre-line;"
+              >
+                {{ task.description }}
+              </div>
+            </hlm-tooltip>
+
+            }
+            <!-- Third Row: Due Date (if present) -->
+            @if (task.reminderTime) {
+            <div class="flex items-center gap-1 text-sm text-gray-500 mt-2">
+              <ng-icon name="lucideClock" class="w-4 h-4 text-gray-400" />
+              <span>
+                Due:
+                <span class="font-medium text-gray-700">
+                  {{ task.reminderTime | date : 'MMMM d, y' }}
+                </span>
+              </span>
             </div>
+            }
           </div>
         </section>
         } @empty {
@@ -193,10 +231,17 @@ export class TasksComponent {
 
   filter$ = model([]);
 
-  constructor() {
-    effect(() => {
-      console.log(this.filter$());
-    });
+  priorityIcon(priority: string) {
+    switch (priority) {
+      case 'High':
+        return { icon: 'lucideFlame', color: 'red', fill: true };
+      case 'Medium':
+        return { icon: 'lucideActivity', color: 'orange' };
+      case 'Low':
+        return { icon: 'lucideLeaf', color: 'green' };
+      default:
+        return null;
+    }
   }
 
   onSearch(event: Event) {
@@ -205,12 +250,10 @@ export class TasksComponent {
   }
 
   onFilter(priorities: Priority[]) {
-    console.log(priorities);
     this._taskService.setPriorityFilters(priorities);
   }
 
   onStatusFilter(statuses: Status[]) {
-    console.log(statuses);
     this._taskService.setStatusFilters(statuses);
   }
 

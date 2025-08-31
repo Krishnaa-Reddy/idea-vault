@@ -17,16 +17,4 @@ export class ToasterService {
       id: new Date().getTime(),
     });
   };
-
-  // show() {
-  //   this.toaster.setToast({
-  //     message: 'ah',
-  //     description: '',
-  //     action: {
-  //       label: 'Close',
-  //       onClick: () => console.log('Closed')
-  //     },
-  //     id: new Date().getTime()
-  //   });
-  // }
 }
