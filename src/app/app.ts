@@ -4,12 +4,14 @@ import { provideHlmDatePickerConfig } from '@spartan-ng/helm/date-picker';
 import { DateTime } from 'luxon';
 import { ShowToaster } from './shared/toaster';
 
+export const DATE_FORMAT = 'EEE, MMM d, y';
+
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, RouterLink, ShowToaster],
   providers: [
     provideHlmDatePickerConfig({
-      formatDate: (date: Date) => DateTime.fromJSDate(date).toFormat('MMMM dd, yyyy'),
+      formatDate: (date: Date) => DateTime.fromJSDate(date).toFormat(DATE_FORMAT),
     }),
   ],
   template: `

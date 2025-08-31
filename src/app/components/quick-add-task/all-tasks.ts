@@ -1,3 +1,4 @@
+import { DATE_FORMAT } from './../../app';
 import { Component, inject, model } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -196,14 +197,13 @@ import { HlmTooltip, HlmTooltipTrigger } from '@spartan-ng/helm/tooltip';
                     </div>
                   </hlm-tooltip>
                 }
-                <!-- Third Row: Due Date (if present) -->
                 @if (task.reminderTime) {
                   <div class="flex items-center gap-1 text-sm text-gray-500 mt-2">
                     <ng-icon name="lucideClock" class="w-4 h-4 text-gray-400" />
                     <span>
                       Due:
                       <span class="font-medium text-gray-700">
-                        {{ task.reminderTime | date: 'MMMM d, y' }}
+                        {{ task.reminderTime | date: _dateFormat }}
                       </span>
                     </span>
                   </div>
@@ -225,6 +225,8 @@ export class TasksComponent {
   tasks = this._taskService.filteredTasks;
   tasksLoading = this._taskService.tasksLoading;
   tasksError = this._taskService.tasksError;
+
+  protected readonly _dateFormat = DATE_FORMAT;
 
   filter$ = model([]);
 
