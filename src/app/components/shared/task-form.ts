@@ -1,6 +1,5 @@
-import { Component, computed, effect, inject, OnDestroy, output } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, inject } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCheck, lucidePencil, lucidePlus } from '@ng-icons/lucide';
 import { BrnSelectImports } from '@spartan-ng/brain/select';
@@ -17,16 +16,8 @@ import { HlmIcon } from '@spartan-ng/helm/icon';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmLabel } from '@spartan-ng/helm/label';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
-import { map, Observable, of } from 'rxjs';
-import { isFullUrl, dateToISO } from '../../utils';
-import {
-  titleValidator,
-  urlForbiddenValidator,
-  urlValidator,
-} from '../../validators/url-validator.validator';
-import { Priority, TaskInsert } from '../../core/models/task.interface';
+import { TaskInsert } from '../../core/models/task.interface';
 import { TaskFormService } from '../../services/task-form';
-import { IvTextArea } from "./text-area";
 
 /**
  * Your default reminder time is 24 hours from now.
@@ -34,10 +25,10 @@ import { IvTextArea } from "./text-area";
  */
 export const DEFAULT_REMINDER_AT = 24 * 60 * 60 * 1000;
 
-export type TaskFormEvent = {
+export interface TaskFormEvent {
   isValid: boolean;
   data: TaskInsert;
-};
+}
 
 @Component({
   selector: 'task-form',
@@ -56,7 +47,7 @@ export type TaskFormEvent = {
     HlmInput,
     NgIcon,
     HlmIcon,
-],
+  ],
   providers: [provideIcons({ lucideCheck, lucidePlus, lucidePencil })],
   template: `
     <form class="flex flex-col gap-6 w-md" [formGroup]="taskGroup">
@@ -100,7 +91,7 @@ export type TaskFormEvent = {
               />
               <hlm-error>No URLs allowed.</hlm-error>
             </hlm-form-field>
-            
+
             <div class="flex gap-4">
               <div class="grid gap-2 flex-1">
                 <label hlmLabel for="priority">Priority</label>

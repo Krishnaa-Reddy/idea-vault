@@ -50,7 +50,7 @@ export class TaskService extends TasksSupabase {
     stream: () =>
       this.select().pipe(
         tap((res) => this.handleError(res?.error)),
-        map((res) => res?.data ?? [])
+        map((res) => res?.data ?? []),
 
         // With the new change in rxResource. I think this is the advantage.
         // I dont explcitly have to catch the error. value() throws it.
@@ -113,7 +113,7 @@ export class TaskService extends TasksSupabase {
           message: 'Task added successfully',
           type: 'success',
         });
-      })
+      }),
     );
   }
 
@@ -122,14 +122,14 @@ export class TaskService extends TasksSupabase {
       tap((res) => {
         if (res.data) {
           this._tasks.update((tasks) =>
-            tasks.map((task) => (task.id === updatedTask.id ? res.data![0] : task))
+            tasks.map((task) => (task.id === updatedTask.id ? res.data![0] : task)),
           );
         }
         this.toaster.setToast({
           message: 'Task updated successfully',
           type: 'info',
         });
-      })
+      }),
     );
   }
 

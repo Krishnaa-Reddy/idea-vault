@@ -7,7 +7,9 @@
     "build": "ng build",
     "gen:types": "npx supabase gen types typescript --project-id ypunylcewhuytlzurfas --schema public > src/database.types.ts",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "lint": "ng lint",
+    "format": "prettier --write ."
   },
   "prettier": {
     "printWidth": 100,
@@ -54,15 +56,22 @@
     "@spartan-ng/cli": "^0.0.1-alpha.502",
     "@types/jasmine": "~5.1.0",
     "@types/luxon": "^3.7.1",
+    "angular-eslint": "20.2.0",
+    "eslint": "^9.33.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "eslint-plugin-unused-imports": "^4.2.0",
     "jasmine-core": "~5.9.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
+    "prettier": "^3.6.2",
     "supabase": "^2.34.3",
     "tailwind-merge": "^2.2.0",
     "tailwindcss-animate": "^1.0.6",
-    "typescript": "~5.9.2"
+    "typescript": "~5.9.2",
+    "typescript-eslint": "8.40.0"
   }
 }

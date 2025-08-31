@@ -3,9 +3,9 @@
 // This enables autocomplete, go to definition, etc.
 
 // Setup type definitions for built-in Supabase Runtime APIs
-import "jsr:@supabase/functions-js/edge-runtime.d.ts"
-import "https://deno.land/std@0.177.0/http/server.ts";
-import "https://deno.land/x/dotenv/load.ts";
+import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
+import 'https://deno.land/std@0.177.0/http/server.ts';
+import 'https://deno.land/x/dotenv/load.ts';
 import { createClient } from 'npm:@supabase/supabase-js';
 import { Resend } from 'npm:resend';
 
@@ -80,16 +80,27 @@ Deno.serve(async () => {
     }
 
     const responseMessage = `Reminder emails processed. Sent ${emailsSentCount} email${emailsSentCount === 1 ? '' : 's'} and ${whatsappMessagesSentCount} WhatsApp message${whatsappMessagesSentCount === 1 ? '' : 's'} to ${recipientsProcessedCount} recipient${recipientsProcessedCount === 1 ? '' : 's'}.`;
-    return new Response(JSON.stringify({ message: responseMessage, emailsSent: emailsSentCount, whatsappMessagesSent: whatsappMessagesSentCount, recipientsProcessed: recipientsProcessedCount }), {
-      headers: { 'Content-Type': 'application/json' },
-      status: 200,
-    });
+    return new Response(
+      JSON.stringify({
+        message: responseMessage,
+        emailsSent: emailsSentCount,
+        whatsappMessagesSent: whatsappMessagesSentCount,
+        recipientsProcessed: recipientsProcessedCount,
+      }),
+      {
+        headers: { 'Content-Type': 'application/json' },
+        status: 200,
+      },
+    );
   } catch (initialError) {
     console.error('Unhandled error in Deno.serve:', initialError);
-    return new Response(JSON.stringify({ error: initialError.message || 'An unexpected error occurred.' }), {
-      headers: { 'Content-Type': 'application/json' },
-      status: 500,
-    });
+    return new Response(
+      JSON.stringify({ error: initialError.message || 'An unexpected error occurred.' }),
+      {
+        headers: { 'Content-Type': 'application/json' },
+        status: 500,
+      },
+    );
   }
 });
 

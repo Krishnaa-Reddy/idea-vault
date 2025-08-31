@@ -2,7 +2,10 @@ import { Task } from '../../types/interfaces.ts';
 import { formatReminderDateTime } from '../../helpers/datetime.ts';
 
 // Helper to generate email HTML
-export function formatEmailHtml(userTasks: Task[], YOUR_WEBSITE_BASE_URL: string | undefined): { subject: string; html: string } {
+export function formatEmailHtml(
+  userTasks: Task[],
+  YOUR_WEBSITE_BASE_URL: string | undefined,
+): { subject: string; html: string } {
   const taskListHtml = userTasks
     .map((task) => {
       const { formattedDate, formattedTime } = formatReminderDateTime(task.reminderTime);
@@ -35,7 +38,12 @@ export function formatEmailHtml(userTasks: Task[], YOUR_WEBSITE_BASE_URL: string
 }
 
 // Helper to send email reminders
-export async function sendEmailReminder(resend: Resend, recipientEmail: string, subject: string, html: string): Promise<boolean> {
+export async function sendEmailReminder(
+  resend: Resend,
+  recipientEmail: string,
+  subject: string,
+  html: string,
+): Promise<boolean> {
   try {
     const { error: sendError } = await resend.emails.send({
       from: 'onboarding@resend.dev', // Replace with your verified Resend domain email

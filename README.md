@@ -4,12 +4,12 @@ A modern Angular application for capturing and organizing your ideas. Built with
 
 ## Technologies Used
 
-  * **[Angular](https://angular.dev/)**: The core framework for building the application.
-  * **[Angular CLI](https://angular.dev/tools/cli)**: Command-line interface for managing the project.
-  * **[Tailwind CSS](https://tailwindcss.com/)**: A utility-first CSS framework for rapid UI development.
-  * **[spartan/ui](https://www.spartan.ng/)**: A collection of accessible UI components built with Tailwind CSS and Radix UI.
+- **[Angular](https://angular.dev/)**: The core framework for building the application.
+- **[Angular CLI](https://angular.dev/tools/cli)**: Command-line interface for managing the project.
+- **[Tailwind CSS](https://tailwindcss.com/)**: A utility-first CSS framework for rapid UI development.
+- **[spartan/ui](https://www.spartan.ng/)**: A collection of accessible UI components built with Tailwind CSS and Radix UI.
 
------
+---
 
 ## Getting Started
 
@@ -42,7 +42,7 @@ ng serve
 
 Open your browser and navigate to `http://localhost:4200/`. The application will automatically reload when you make changes to the source files.
 
------
+---
 
 ## Building and Deployment
 
@@ -54,7 +54,7 @@ ng build
 
 The build artifacts will be stored in the `dist/` directory.
 
------
+---
 
 ## Code Scaffolding
 
@@ -70,7 +70,7 @@ To see all available options, use the `--help` flag:
 ng generate --help
 ```
 
------
+---
 
 ## Running Tests
 

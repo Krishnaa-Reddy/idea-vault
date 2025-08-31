@@ -7,7 +7,7 @@ export type Priority = 'High' | 'Medium' | 'Low';
  * - 'pending': Tasks that are not new, not completed, and not archived.
  * - 'completed': Tasks marked as completed.
  * - 'archived': Tasks marked as archived.
- * 
+ *
  */
 export type Status = 'new' | 'pending' | 'completed' | 'archived';
 

@@ -1,5 +1,5 @@
 // validators.utils.ts
-export const FULL_URL_REGEX = /^https?:\/\/[^\s]+$/i;     // must be ONLY a URL
+export const FULL_URL_REGEX = /^https?:\/\/[^\s]+$/i; // must be ONLY a URL
 export const URL_FRAGMENT_REGEX = /(https?:\/\/[^\s]+)/i; // detect URL substring
 
 export function isFullUrl(value: string): boolean {

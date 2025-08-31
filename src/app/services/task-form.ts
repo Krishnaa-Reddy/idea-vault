@@ -1,6 +1,6 @@
 import { computed, effect, inject, Injectable, OnDestroy } from '@angular/core';
 import { NonNullableFormBuilder, Validators } from '@angular/forms';
-import { Priority, Task, TaskInsert, TaskUpdate } from '../core/models/task.interface';
+import { Priority, Task, TaskUpdate } from '../core/models/task.interface';
 import {
   titleValidator,
   urlValidator,
@@ -28,7 +28,7 @@ export class TaskFormService implements OnDestroy {
     completed: false,
   });
 
-  _invalidTaskForm = toSignal(this.taskGroup.valueChanges.pipe(map((_) => this.taskGroup.invalid)));
+  _invalidTaskForm = toSignal(this.taskGroup.valueChanges.pipe(map(() => this.taskGroup.invalid)));
   _title = toSignal(this.taskGroup.get('title')?.valueChanges ?? of(null));
 
   titleError = computed(() => {
@@ -66,7 +66,7 @@ export class TaskFormService implements OnDestroy {
 
   constructTaskInsert() {
     const formData = this.taskGroup.getRawValue();
-    return{
+    return {
       ...formData,
       reminderTime: dateToISO(formData.reminderTime),
     };

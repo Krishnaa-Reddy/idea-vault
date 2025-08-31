@@ -2,7 +2,9 @@ import { createClient } from 'npm:@supabase/supabase-js';
 import { Task } from '../types/interfaces.ts';
 
 // Helper to fetch overdue tasks
-export async function fetchOverdueTasks(supabaseClient: ReturnType<typeof createClient>): Promise<Task[] | null> {
+export async function fetchOverdueTasks(
+  supabaseClient: ReturnType<typeof createClient>,
+): Promise<Task[] | null> {
   const { data: tasks, error } = await supabaseClient
     .from('tasks')
     .select('*')

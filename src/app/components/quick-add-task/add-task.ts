@@ -19,12 +19,6 @@ import { TaskFormService } from '../../services/task-form';
 import { TaskService } from '../../services/task.service';
 import { TaskForm } from '../shared/task-form';
 
-/**
- * Your default reminder time is 24 hours from now.
- * Tomorrow
- */
-export const DEFAULT_REMINDER_AT = 24 * 60 * 60 * 1000;
-
 @Component({
   selector: 'add-task',
   imports: [
@@ -79,7 +73,7 @@ export class AddTask {
       const newTask = this._taskFormService.constructTaskInsert();
 
       this._taskService.addTask(newTask).subscribe({
-        next: (_) => {
+        next: () => {
           this.submitTask.set('Submit');
           this._taskFormService.taskGroup.reset();
           this._dialogRef()?.close();

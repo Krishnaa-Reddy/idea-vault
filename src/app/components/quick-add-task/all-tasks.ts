@@ -1,4 +1,4 @@
-import { Component, inject, model, effect } from '@angular/core';
+import { Component, inject, model } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideCheck,
@@ -23,7 +23,7 @@ import { Priority, Status } from '../../core/models/task.interface';
 import { HighlightBadge } from '../../directives/new-highlight';
 import { HlmIcon } from '@spartan-ng/helm/icon';
 import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
-import { BrnTooltipContent, BrnTooltipContentTemplate } from '@spartan-ng/brain/tooltip';
+import { BrnTooltipContentTemplate } from '@spartan-ng/brain/tooltip';
 import { HlmTooltip, HlmTooltipTrigger } from '@spartan-ng/helm/tooltip';
 
 @Component({
@@ -31,7 +31,6 @@ import { HlmTooltip, HlmTooltipTrigger } from '@spartan-ng/helm/tooltip';
   imports: [
     BrnCommandImports,
     HlmCommandImports,
-    BrnTooltipContent,
     BrnSelectImports,
     HlmSelectImports,
     HlmCardImports,
@@ -47,8 +46,8 @@ import { HlmTooltip, HlmTooltipTrigger } from '@spartan-ng/helm/tooltip';
     NgIcon,
     HlmIcon,
     HlmSkeleton,
-    BrnTooltipContentTemplate
-],
+    BrnTooltipContentTemplate,
+  ],
   providers: [
     provideIcons({
       lucideCheck,
@@ -112,113 +111,111 @@ import { HlmTooltip, HlmTooltipTrigger } from '@spartan-ng/helm/tooltip';
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
-        @if(tasksLoading()) { @for (i of [1,2,3,4,5,6]; track i) {
-        <section hlmCard class="group w-full">
-          <div hlmCardContent class="flex flex-col gap-3">
-            <hlm-skeleton class="h-6 w-3/4" />
-            <hlm-skeleton class="h-4 w-1/2" />
-            <div class="flex items-center gap-2">
-              <hlm-skeleton class="h-4 w-1/4" />
-              <hlm-skeleton class="h-4 w-1/4" />
-            </div>
-          </div>
-        </section>
-        } } @else if (tasksError()) {
-        <p class="text-muted-foreground text-center col-span-full">
-          Something's wrong. Please try later.
-        </p>
-        } @else { @for (task of tasks(); track task.id) {
-        <section
-          hlmCard
-          class="group"
-          [highlightBadge]="isTaskNew(task.createdAt)"
-          [ngClass]="{
-            'border-green-500 shadow-md': task.completed,
-            'opacity-60': task.archived,
-            'w-full transition-all duration-200': true
-          }"
-        >
-          <div hlmCardContent class="flex flex-col">
-            <div class="flex items-end justify-between gap-3 w-full">
-              <div class="flex items-center gap-2 min-w-0 flex-1">
-                @if (priorityIcon(task.priority); as prio) {
-                <span class="flex-shrink-0">
-                  <ng-icon
-                    hlm
-                    [hlmTooltipTrigger]="task.priority"
-                    [name]="prio.icon"
-                    [color]="prio.color"
-                  />
-                </span>
-                }
-                <div class="flex-1 min-w-0">
-                  @if (task.url) {
-                  <a
-                    href="{{ task.url }}"
-                    target="_blank"
-                    rel="noopener"
-                    class="block text-lg font-semibold text-blue-600 hover:underline truncate cursor-pointer"
-                    [ngClass]="{ 'line-through text-gray-500': task.completed }"
-                  >
-                    {{ task.title }}
-                  </a>
-                  } @else {
-                  <h3
-                    [hlmTooltipTrigger]="task.description"
-                    [aria-describedby]="task.title"
-                    class="block text-lg font-semibold truncate"
-                    [ngClass]="{ 'line-through text-gray-500': task.completed }"
-                  >
-                    {{ task.title }}
-                  </h3>
-                  }
+        @if (tasksLoading()) {
+          @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+            <section hlmCard class="group w-full">
+              <div hlmCardContent class="flex flex-col gap-3">
+                <hlm-skeleton class="h-6 w-3/4" />
+                <hlm-skeleton class="h-4 w-1/2" />
+                <div class="flex items-center gap-2">
+                  <hlm-skeleton class="h-4 w-1/4" />
+                  <hlm-skeleton class="h-4 w-1/4" />
                 </div>
               </div>
-              <div
-                class="flex items-center gap-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-              >
-                <edit-task-dialog [task]="task" />
-                <alert-dialog [task]="task" />
+            </section>
+          }
+        } @else if (tasksError()) {
+          <p class="text-muted-foreground text-center col-span-full">
+            Something's wrong. Please try later.
+          </p>
+        } @else {
+          @for (task of tasks(); track task.id) {
+            <section
+              hlmCard
+              class="group"
+              [highlightBadge]="isTaskNew(task.createdAt)"
+              [ngClass]="{
+                'border-green-500 shadow-md': task.completed,
+                'opacity-60': task.archived,
+                'w-full transition-all duration-200': true,
+              }"
+            >
+              <div hlmCardContent class="flex flex-col">
+                <div class="flex items-end justify-between gap-3 w-full">
+                  <div class="flex items-center gap-2 min-w-0 flex-1">
+                    @if (priorityIcon(task.priority); as prio) {
+                      <span class="flex-shrink-0">
+                        <ng-icon
+                          hlm
+                          [hlmTooltipTrigger]="task.priority"
+                          [name]="prio.icon"
+                          [color]="prio.color"
+                        />
+                      </span>
+                    }
+                    <div class="flex-1 min-w-0">
+                      @if (task.url) {
+                        <a
+                          href="{{ task.url }}"
+                          target="_blank"
+                          rel="noopener"
+                          class="block text-lg font-semibold text-blue-600 hover:underline truncate cursor-pointer"
+                          [ngClass]="{ 'line-through text-gray-500': task.completed }"
+                        >
+                          {{ task.title }}
+                        </a>
+                      } @else {
+                        <h3
+                          [hlmTooltipTrigger]="task.description"
+                          [aria-describedby]="task.title"
+                          class="block text-lg font-semibold truncate"
+                          [ngClass]="{ 'line-through text-gray-500': task.completed }"
+                        >
+                          {{ task.title }}
+                        </h3>
+                      }
+                    </div>
+                  </div>
+                  <div
+                    class="flex items-center gap-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                  >
+                    <edit-task-dialog [task]="task" />
+                    <alert-dialog [task]="task" />
+                  </div>
+                </div>
+                @if (task.description) {
+                  <hlm-tooltip>
+                    <div class="text-sm text-muted-foreground truncate italic" hlmTooltipTrigger>
+                      {{ task.description }}
+                    </div>
+                    <div
+                      *brnTooltipContent
+                      class="max-w-xl break-words whitespace-pre-line text-wrap italic"
+                    >
+                      {{ task.description }}
+                    </div>
+                  </hlm-tooltip>
+                }
+                <!-- Third Row: Due Date (if present) -->
+                @if (task.reminderTime) {
+                  <div class="flex items-center gap-1 text-sm text-gray-500 mt-2">
+                    <ng-icon name="lucideClock" class="w-4 h-4 text-gray-400" />
+                    <span>
+                      Due:
+                      <span class="font-medium text-gray-700">
+                        {{ task.reminderTime | date: 'MMMM d, y' }}
+                      </span>
+                    </span>
+                  </div>
+                }
               </div>
-            </div>
-            @if (task.description) {
-
-            <hlm-tooltip>
-              <div
-                class="text-sm text-muted-foreground truncate"
-                hlmTooltipTrigger
-              >
-                {{ task.description }}
-              </div>
-              <div
-                *brnTooltipContent
-                class="max-w-xl break-words whitespace-pre-line text-wrap"
-                style="word-break: break-word; white-space: pre-line;"
-              >
-                {{ task.description }}
-              </div>
-            </hlm-tooltip>
-
-            }
-            <!-- Third Row: Due Date (if present) -->
-            @if (task.reminderTime) {
-            <div class="flex items-center gap-1 text-sm text-gray-500 mt-2">
-              <ng-icon name="lucideClock" class="w-4 h-4 text-gray-400" />
-              <span>
-                Due:
-                <span class="font-medium text-gray-700">
-                  {{ task.reminderTime | date : 'MMMM d, y' }}
-                </span>
-              </span>
-            </div>
-            }
-          </div>
-        </section>
-        } @empty {
-        <p class="text-muted-foreground text-center col-span-full">
-          No tasks found. Add one to proceed!
-        </p>
-        } }
+            </section>
+          } @empty {
+            <p class="text-muted-foreground text-center col-span-full">
+              No tasks found. Add one to proceed!
+            </p>
+          }
+        }
       </div>
     </section>
   `,

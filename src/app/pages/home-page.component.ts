@@ -12,29 +12,38 @@ import { RouterLink } from '@angular/router';
       <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
         <div class="text-center max-w-4xl mx-auto">
           <div class="mb-8">
-            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 mb-6">
+            <span
+              class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 mb-6"
+            >
               ✨ Never forget another idea
             </span>
           </div>
-          
+
           <h1 class="text-5xl sm:text-6xl font-bold text-gray-900 mb-6 leading-tight">
             Your ideas deserve
-            <span class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent block">
+            <span
+              class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent block"
+            >
               intelligent reminders
             </span>
           </h1>
-          
+
           <p class="text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
-            A minimalist capture tool that prevents you from forgetting important links, 
-            tasks, and goals by sending smart reminders directly to your email and WhatsApp.
+            A minimalist capture tool that prevents you from forgetting important links, tasks, and
+            goals by sending smart reminders directly to your email and WhatsApp.
           </p>
 
           <!-- CTA Buttons -->
           <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-            <button class="bg-black text-white px-8 py-4 rounded-xl hover:bg-gray-800 transition-all duration-200 font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+            <button
+              class="bg-black text-white px-8 py-4 rounded-xl hover:bg-gray-800 transition-all duration-200 font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            >
               Start Capturing Ideas
             </button>
-            <a routerLink="/tasks" class="text-gray-600 hover:text-gray-900 font-semibold text-lg flex items-center gap-2 transition-colors">
+            <a
+              routerLink="/tasks"
+              class="text-gray-600 hover:text-gray-900 font-semibold text-lg flex items-center gap-2 transition-colors"
+            >
               View Tasks
               <span class="text-xl">→</span>
             </a>
@@ -53,18 +62,24 @@ import { RouterLink } from '@angular/router';
               </div>
               <div class="p-8">
                 <div class="mb-4">
-                  <input 
-                    type="text" 
-                    placeholder="Paste a URL or type a task..." 
+                  <input
+                    type="text"
+                    placeholder="Paste a URL or type a task..."
                     class="w-full p-4 text-lg border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     readonly
-                  >
+                  />
                 </div>
                 <div class="flex justify-between items-center">
                   <div class="flex gap-2">
-                    <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium">🔥 High</span>
-                    <span class="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">🟡 Medium</span>
-                    <span class="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">🧊 Low</span>
+                    <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium"
+                      >🔥 High</span
+                    >
+                    <span class="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm"
+                      >🟡 Medium</span
+                    >
+                    <span class="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm"
+                      >🧊 Low</span
+                    >
                   </div>
                   <button class="bg-black text-white px-6 py-2 rounded-lg font-medium">
                     Add Task
@@ -86,29 +101,41 @@ import { RouterLink } from '@angular/router';
         <div class="grid md:grid-cols-3 gap-8">
           <!-- Feature 1 -->
           <div class="text-center p-6 rounded-2xl hover:bg-gray-50 transition-colors">
-            <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+            <div
+              class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4"
+            >
               <span class="text-2xl">⚡</span>
             </div>
             <h3 class="text-xl font-semibold text-gray-900 mb-3">Lightning Fast</h3>
-            <p class="text-gray-600">Add tasks in under 10 seconds. No friction, no complicated forms.</p>
+            <p class="text-gray-600">
+              Add tasks in under 10 seconds. No friction, no complicated forms.
+            </p>
           </div>
 
           <!-- Feature 2 -->
           <div class="text-center p-6 rounded-2xl hover:bg-gray-50 transition-colors">
-            <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+            <div
+              class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-4"
+            >
               <span class="text-2xl">🎯</span>
             </div>
             <h3 class="text-xl font-semibold text-gray-900 mb-3">Smart Reminders</h3>
-            <p class="text-gray-600">Get reminded via email and WhatsApp exactly when you need it.</p>
+            <p class="text-gray-600">
+              Get reminded via email and WhatsApp exactly when you need it.
+            </p>
           </div>
 
           <!-- Feature 3 -->
           <div class="text-center p-6 rounded-2xl hover:bg-gray-50 transition-colors">
-            <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+            <div
+              class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-4"
+            >
               <span class="text-2xl">🔗</span>
             </div>
             <h3 class="text-xl font-semibold text-gray-900 mb-3">Auto-Enrichment</h3>
-            <p class="text-gray-600">Paste any URL and we'll automatically fetch the title and description.</p>
+            <p class="text-gray-600">
+              Paste any URL and we'll automatically fetch the title and description.
+            </p>
           </div>
         </div>
       </section>
@@ -131,14 +158,16 @@ import { RouterLink } from '@angular/router';
             </div>
           </div>
         </div>
-      </section>      
+      </section>
 
       <!-- Footer -->
       <footer class="border-t border-gray-200 py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex flex-col md:flex-row justify-between items-center">
             <div class="flex items-center space-x-2 mb-4 md:mb-0">
-              <div class="w-6 h-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded-md flex items-center justify-center">
+              <div
+                class="w-6 h-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded-md flex items-center justify-center"
+              >
                 <span class="text-white font-bold text-xs">IV</span>
               </div>
               <span class="text-gray-600">© 2025 IdeaVault. Never forget again.</span>

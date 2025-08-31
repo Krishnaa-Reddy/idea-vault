@@ -2,7 +2,10 @@ import { Task } from '../../types/interfaces.ts';
 import { formatReminderDateTime } from '../../helpers/datetime.ts';
 
 // Helper to generate WhatsApp message text
-export function formatWhatsappMessage(userTasks: Task[], YOUR_WEBSITE_BASE_URL: string | undefined): string {
+export function formatWhatsappMessage(
+  userTasks: Task[],
+  YOUR_WEBSITE_BASE_URL: string | undefined,
+): string {
   const taskListWhatsapp = userTasks
     .map((task) => {
       const { formattedDate, formattedTime } = formatReminderDateTime(task.reminderTime);
@@ -33,7 +36,7 @@ export async function sendWhatsappReminder(
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': `Basic ${btoa(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`)}`,
+          Authorization: `Basic ${btoa(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`)}`,
         },
         body: new URLSearchParams({
           To: `whatsapp:${recipientWhatsapp}`,

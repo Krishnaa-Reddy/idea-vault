@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { ToastT, toast } from 'ngx-sonner';
+import { ToastT } from 'ngx-sonner';
 
 export type Toast = ToastT & { message: string };
 
@@ -16,5 +16,5 @@ export class ToasterService {
       ...toast,
       id: new Date().getTime(),
     });
-  };
+  }
 }

@@ -1,4 +1,3 @@
-import { NgClass } from '@angular/common';
 import { Component, OnDestroy, inject, signal, effect } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -16,10 +15,10 @@ import { HlmLabel } from '@spartan-ng/helm/label';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { TaskFormService } from '../../services/task-form';
 
-export type StatusFields = {
+export interface StatusFields {
   completed: boolean;
   archived: boolean;
-};
+}
 
 @Component({
   selector: 'status-fields-section',
@@ -31,14 +30,13 @@ export type StatusFields = {
     BrnSelectImports,
     HlmSelectImports,
     HlmFormFieldModule,
-    NgClass,
   ],
   providers: [
     provideIcons({ lucideCheck, lucideChevronDown, lucidePencil, lucideArchive, lucideClock }),
   ],
   template: `
-    <div class="grid gap-2 w-full">
-      <label hlmLabel>Status</label>
+    <div hlmFormField class="grid gap-2 w-full">
+      <span hlmLabel>Status</span>
       <div class="flex gap-3">
         <button
           hlmBtn

@@ -98,7 +98,7 @@ export class EditDialog implements AfterViewInit {
       this._tasks
         .updateTask(this._taskFormService.constructTaskUpdateFromTaskId(this.task().id))
         .subscribe({
-          next: (_) => {
+          next: () => {
             this.editText.set('Save changes');
             this._dialogRef()?.close();
           },

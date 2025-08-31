@@ -17,21 +17,31 @@ import { TaskService } from '../../services/task.service';
     HlmLabel,
     HlmRadioGroup,
     HlmRadio,
-    HlmDatePicker
-],
+    HlmDatePicker,
+  ],
   template: `
-
-    <div class="max-w-md mx-auto p-6 bg-card text-card-foreground rounded-lg shadow-xl animate-fade-in-down">
+    <div
+      class="max-w-md mx-auto p-6 bg-card text-card-foreground rounded-lg shadow-xl animate-fade-in-down"
+    >
       <h2 class="text-2xl font-bold mb-6 text-center">Quick Add Task</h2>
 
       <div class="mb-4">
-        <input hlmInput placeholder="Add a new task or paste a URL" [formControl]="taskControl" class="w-full text-lg p-3 rounded-md border-input focus:ring-2 focus:ring-primary-foreground focus:border-transparent transition-all duration-200" />
+        <input
+          hlmInput
+          placeholder="Add a new task or paste a URL"
+          [formControl]="taskControl"
+          class="w-full text-lg p-3 rounded-md border-input focus:ring-2 focus:ring-primary-foreground focus:border-transparent transition-all duration-200"
+        />
       </div>
 
       <div class="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div class="flex flex-col gap-2">
-          <label hlmLabel class="text-sm font-medium">Priority</label>
-          <hlm-radio-group orientation="horizontal" [formControl]="priorityControl" class="flex gap-4">
+          <span hlmLabel class="text-sm font-medium">Priority</span>
+          <hlm-radio-group
+            orientation="horizontal"
+            [formControl]="priorityControl"
+            class="flex gap-4"
+          >
             <div class="flex items-center space-x-2">
               <hlm-radio value="High" id="r1" class="border-red-500 text-red-500" />
               <label hlmLabel for="r1" class="text-red-500">High</label>
@@ -48,33 +58,48 @@ import { TaskService } from '../../services/task.service';
         </div>
 
         <div class="flex flex-col gap-2">
-          <label hlmLabel class="text-sm font-medium">Reminder Time</label>
+          <span hlmLabel class="text-sm font-medium">Reminder Time</span>
           <div class="flex gap-2">
-            <hlm-date-picker [formControl]="reminderDateControl" class="w-48 p-3 rounded-md border-input" />
-            <input hlmInput type="time" [formControl]="reminderTimeControl" class="w-24 p-3 rounded-md border-input" />
+            <hlm-date-picker
+              [formControl]="reminderDateControl"
+              class="w-48 p-3 rounded-md border-input"
+            />
+            <input
+              hlmInput
+              type="time"
+              [formControl]="reminderTimeControl"
+              class="w-24 p-3 rounded-md border-input"
+            />
           </div>
         </div>
       </div>
-      <button hlmBtn (click)="addTask()" [disabled]="taskControl.invalid" class="w-full py-3 text-lg font-semibold bg-gradient-to-r from-primary-foreground to-primary-background text-primary-text rounded-md hover:from-primary-background hover:to-primary-foreground transition-all duration-300 transform hover:scale-105 active:scale-95">
+      <button
+        hlmBtn
+        (click)="addTask()"
+        [disabled]="taskControl.invalid"
+        class="w-full py-3 text-lg font-semibold bg-gradient-to-r from-primary-foreground to-primary-background text-primary-text rounded-md hover:from-primary-background hover:to-primary-foreground transition-all duration-300 transform hover:scale-105 active:scale-95"
+      >
         Add Task
       </button>
     </div>
   `,
-  styles: [`
-    @keyframes fade-in-down {
-      from {
-        opacity: 0;
-        transform: translateY(-20px);
+  styles: [
+    `
+      @keyframes fade-in-down {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
-      to {
-        opacity: 1;
-        transform: translateY(0);
+      .animate-fade-in-down {
+        animation: fade-in-down 0.5s ease-out forwards;
       }
-    }
-    .animate-fade-in-down {
-      animation: fade-in-down 0.5s ease-out forwards;
-    }
-  `]
+    `,
+  ],
 })
 export class QuickAddTaskComponent {
   taskControl = new FormControl('', Validators.required);
@@ -130,7 +155,6 @@ export class QuickAddTaskComponent {
     }
   }
 }
-
 
 // <hlm-form-field>
 // <brn-select class="inline-block" placeholder="Select some fruit" formControlName="fruit">

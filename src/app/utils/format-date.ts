@@ -8,14 +8,9 @@ export const formatDate = (date: Date): string => {
 };
 
 export const dateToISO = (reminderTime: Date | null): string | null => {
-  if (!reminderTime) return null;
-  const reminderDateTime = new Date(reminderTime);
-  reminderDateTime.setHours(9, 0, 0, 0);
-  return reminderDateTime.toISOString();
+  return reminderTime ? reminderTime.toISOString() : null;
 };
 
-
 export const ISOtoDate = (reminderTime?: string | null): Date | null => {
-  if (!reminderTime) return null;
-  return new Date(reminderTime);
+  return reminderTime ? DateTime.fromISO(reminderTime).toJSDate() : null;
 };

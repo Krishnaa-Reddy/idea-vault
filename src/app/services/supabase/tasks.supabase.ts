@@ -1,6 +1,6 @@
-import { from, share, throwError, timer, mergeMap } from 'rxjs';
-import { _supabase } from './supabase-client';
+import { from, share } from 'rxjs';
 import { Task, TaskInsert, TaskUpdate } from '../../core/models/task.interface';
+import { _supabase } from './supabase-client';
 
 const TASKS = 'tasks';
 
@@ -12,9 +12,13 @@ export class TasksSupabase {
     //   share()
     // );
 
-    return from(_supabase.from(TASKS).select().order('createdAt', { ascending: false }).overrideTypes<Task[]>()).pipe(
-      share()
-    );
+    return from(
+      _supabase
+        .from(TASKS)
+        .select()
+        .order('createdAt', { ascending: false })
+        .overrideTypes<Task[]>(),
+    ).pipe(share());
   }
 
   protected insert(data: TaskInsert) {
@@ -24,7 +28,6 @@ export class TasksSupabase {
   protected delete(id: number) {
     return from(_supabase.from(TASKS).delete().eq('id', id).select().overrideTypes<Task[]>());
   }
-
 
   protected update(id: number, data: TaskUpdate) {
     return from(_supabase.from(TASKS).update(data).eq('id', id).select().overrideTypes<Task[]>());
