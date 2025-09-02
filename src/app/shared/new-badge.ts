@@ -6,7 +6,7 @@ import { Component } from '@angular/core';
   template: ` NEW `,
   host: {
     class:
-      'absolute -top-2 -left-2 bg-black text-white text-[10px] font-bold px-2 py-1 rounded-br-lg shadow-md',
+      'absolute -top-2 -left-2 bg-primary text-primary-foreground text-[10px] font-bold px-2 py-1 rounded-br-lg shadow-md',
   },
 })
 export class NewBadge {}

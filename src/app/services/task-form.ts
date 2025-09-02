@@ -23,7 +23,7 @@ export class TaskFormService implements OnDestroy {
     url: [null as string | null, urlValidator()],
     description: [null as string | null, urlForbiddenValidator()],
     priority: 'Low' as Priority,
-    reminderTime: new Date() as Date | null,
+    reminderTime: null as Date | null,
     archived: false,
     completed: false,
   });

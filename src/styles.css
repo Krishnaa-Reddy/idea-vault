@@ -2,6 +2,10 @@
 @import 'tailwindcss';
 @import '@spartan-ng/brain/hlm-tailwind-preset.css';
 
+/* Wow! Below line suggested by official Tailwind docs
+Fixed the problem of by default taking the system theme */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --font-sans: 'Geist Sans', sans-serif;
 }

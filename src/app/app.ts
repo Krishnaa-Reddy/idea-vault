@@ -1,14 +1,16 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { provideHlmDatePickerConfig } from '@spartan-ng/helm/date-picker';
 import { DateTime } from 'luxon';
 import { ShowToaster } from './shared/toaster';
+import { ThemeService } from './services/theme/theme.service';
+import { ThemeSwitch } from "./core/theme/theme-switch/theme-switch";
 
 export const DATE_FORMAT = 'EEE, MMM d, y';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, ShowToaster],
+  imports: [RouterOutlet, RouterLink, ShowToaster, ThemeSwitch],
   providers: [
     provideHlmDatePickerConfig({
       formatDate: (date: Date) => DateTime.fromJSDate(date).toFormat(DATE_FORMAT),
@@ -27,8 +29,10 @@ export const DATE_FORMAT = 'EEE, MMM d, y';
             >
               <span class="text-white font-bold text-sm">IV</span>
             </div>
-            <h1 class="text-xl font-semibold text-gray-900">IdeaVault</h1>
+            <h1 class="text-xl font-semibold text-foreground">IdeaVault</h1>
           </a>
+          <!-- <button (click)="toggleTheme()">Toggle theme</button> -->
+          <theme-switch></theme-switch>
         </div>
       </header>
 
@@ -41,4 +45,9 @@ export const DATE_FORMAT = 'EEE, MMM d, y';
 })
 export class App {
   protected readonly title = signal('idea-vault');
+  private _themeService = inject(ThemeService);
+
+  public toggleTheme(): void {
+    this._themeService.toggleDarkMode();
+  }
 }

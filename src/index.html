@@ -6,8 +6,18 @@
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <script>
+      // NOTE: This is to avoid Flash of Unstyled Content (FOUC)
+      // This is to avoid flickering on initial load even before Angular bootstraps
+      (function () {
+        const theme = localStorage.getItem('theme');
+        if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
   </head>
-  <body>
+  <body class="bg-background text-foreground">
     <app-root></app-root>
   </body>
 </html>

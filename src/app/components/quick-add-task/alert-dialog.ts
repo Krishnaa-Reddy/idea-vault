@@ -66,8 +66,8 @@ export class AlertDialog {
   onDelete() {
     this.deletion.set('Deleting...');
     setTimeout(() => {
-      this._tasks.deleteTask(this.task().id);
       this.deletion.set('Delete');
+      this._tasks.deleteTask(this.task().id);
     }, 1000);
   }
 }
