@@ -6,6 +6,7 @@
     "start": "ng serve",
     "build": "ng build",
     "gen:types": "npx supabase gen types typescript --project-id ypunylcewhuytlzurfas --schema public > src/database.types.ts",
+    "deploy:send-reminders": "npx supabase functions deploy send-reminders --no-verify-jwt --import-map supabase/functions/send-reminders/deno.json",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint",

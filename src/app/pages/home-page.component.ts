@@ -118,7 +118,7 @@ import { RouterLink } from '@angular/router';
             </div>
             <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">Smart Reminders</h3>
             <p class="text-gray-600 dark:text-gray-300">
-              Get reminded via email and WhatsApp exactly when you need it.
+              Get reminded via email when you need them.
             </p>
           </div>
 
@@ -131,7 +131,7 @@ import { RouterLink } from '@angular/router';
             </div>
             <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">Auto-Enrichment</h3>
             <p class="text-gray-600 dark:text-gray-300">
-              Paste any URL and we'll automatically fetch the title and description.
+              Paste any URL that you don't want to miss out.
             </p>
           </div>
         </div>

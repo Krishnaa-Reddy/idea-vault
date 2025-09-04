@@ -67,6 +67,5 @@ export class MultipleForms {
     createdAt: Date.now().toString(),
     id: Date.now().valueOf(),
     isReminderSent: null,
-    isWhatsappReminderSent: null,
   };
 }
