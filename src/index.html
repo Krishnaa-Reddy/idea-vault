@@ -5,17 +5,22 @@
     <title>IdeaVault</title>
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+    <link rel="icon" type="image/x-icon" href="iv-logo.png" />
     <script>
       // NOTE: This is to avoid Flash of Unstyled Content (FOUC)
       // This is to avoid flickering on initial load even before Angular bootstraps
       (function () {
         const theme = localStorage.getItem('theme');
-        if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        if (
+          theme === 'dark' ||
+          (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        ) {
           document.documentElement.classList.add('dark');
         }
       })();
     </script>
+    <script src="https://accounts.google.com/gsi/client" async></script>
   </head>
   <body class="bg-background text-foreground">
     <app-root></app-root>

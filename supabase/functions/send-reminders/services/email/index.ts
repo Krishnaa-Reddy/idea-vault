@@ -1,11 +1,11 @@
-import { Task } from '../../types/interfaces.ts';
-import { formatReminderDateTime } from '../../helpers/datetime.ts';
-import { Resend } from 'npm:resend';
 import { differenceInCalendarDays } from 'npm:date-fns';
+import { Resend } from 'npm:resend';
+import { formatReminderDateTime } from '../../helpers/datetime.ts';
+import { CategorizedTasks, Task } from '../../types/interfaces.ts';
 
 // Helper to generate email HTML
 export function formatEmailHtml(
-  categorizedTasks: { today: Task[]; approaching: Task[]; overdue: Task[] },
+  categorizedTasks: CategorizedTasks,
   YOUR_WEBSITE_BASE_URL: string | undefined,
 ): { subject: string; html: string } {
   const sections: string[] = [];
@@ -20,12 +20,14 @@ export function formatEmailHtml(
 
         let subtitle = '';
         if (type === 'today') subtitle = `Due Today (${formattedDate})`;
-        if (type === 'approaching') subtitle = `Due in ${Math.abs(daysDiff)} days (${formattedDate})`;
-        if (type === 'overdue') subtitle = `Overdue by ${Math.abs(daysDiff)} days (${formattedDate})`;
+        if (type === 'approaching')
+          subtitle = `Due in ${Math.abs(daysDiff)} days (${formattedDate})`;
+        if (type === 'overdue')
+          subtitle = `Overdue by ${Math.abs(daysDiff)} days (${formattedDate})`;
 
         return `
           <li style="margin-bottom: 10px; padding: 10px; border-left: 3px solid #007bff; background-color: #f8f9fa;">
-            <h3 style="margin: 0; font-size: 16px; color: #333;"><strong>${task.description}</strong></h3>
+            <h3 style="margin: 0; font-size: 16px; color: #333;"><strong>${task.title}</strong></h3>
             <p style="margin: 5px 0 0; font-size: 14px; color: #6c757d;">${subtitle}</p>
             ${task.url ? `<p style="margin: 5px 0 0; font-size: 14px; color: #6c757d;">Link: <a href="${task.url}" style="color: #007bff; text-decoration: none;">${task.url}</a></p>` : ''}
           </li>
@@ -60,13 +62,12 @@ export function formatEmailHtml(
       <p style="margin-top: 20px;">
         <a href="${YOUR_WEBSITE_BASE_URL}/tasks" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Go to My Tasks</a>
       </p>
-      <p style="margin-top: 20px; font-size: 12px; color: #999;">Best regards,<br/>Your Idea Vault Team</p>
+      <p style="margin-top: 20px; font-size: 12px; color: #999;">Best regards,<br/>The Idea Vault Team</p>
     </div>
   `;
 
   return { subject, html };
 }
-
 
 // Helper to send email reminders
 export async function sendEmailReminder(
@@ -77,7 +78,7 @@ export async function sendEmailReminder(
 ): Promise<boolean> {
   try {
     const { error: sendError } = await resend.emails.send({
-      from: 'onboarding@resend.dev', // Replace with your verified Resend domain email
+      from: 'IdeaVault <noreply@ideavault.space>',
       to: recipientEmail,
       subject: subject,
       html: html,

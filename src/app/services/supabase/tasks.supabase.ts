@@ -1,4 +1,4 @@
-import { from, share } from 'rxjs';
+import { from, shareReplay } from 'rxjs';
 import { Task, TaskInsert, TaskUpdate } from '../../core/models/task.interface';
 import { _supabase } from './supabase-client';
 
@@ -6,22 +6,16 @@ const TASKS = 'tasks';
 
 export class TasksSupabase {
   protected select() {
-    // INFO: To mock server error
-    // return timer(500).pipe(
-    //   mergeMap(() => throwError(() => new Error('Failed to load tasks from Supabase.'))),
-    //   share()
-    // );
-
     return from(
       _supabase
         .from(TASKS)
         .select()
         .order('createdAt', { ascending: false })
         .overrideTypes<Task[]>(),
-    ).pipe(share());
+    ).pipe(shareReplay(1));
   }
 
-  protected insert(data: TaskInsert) {
+  protected insert(data: TaskInsert | TaskInsert[]) {
     return from(_supabase.from(TASKS).insert(data).select().overrideTypes<Task[]>());
   }
 
@@ -31,5 +25,11 @@ export class TasksSupabase {
 
   protected update(id: number, data: TaskUpdate) {
     return from(_supabase.from(TASKS).update(data).eq('id', id).select().overrideTypes<Task[]>());
+  }
+
+  protected updateReminderStatus(value: boolean, userid: string) {
+    return from(
+      _supabase.from('reminders').update({ enable_reminder: value }).eq('user_id', userid),
+    );
   }
 }

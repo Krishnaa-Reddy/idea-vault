@@ -6,7 +6,7 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export type Database = {
+export interface Database {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
@@ -56,6 +56,24 @@ export type Database = {
         }
         Relationships: []
       }
+      reminders: {
+        Row: {
+          enable_reminder: boolean
+          id: number
+          user_id: string
+        }
+        Insert: {
+          enable_reminder?: boolean
+          id?: never
+          user_id: string
+        }
+        Update: {
+          enable_reminder?: boolean
+          id?: never
+          user_id?: string
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           archived: boolean
@@ -63,11 +81,12 @@ export type Database = {
           createdAt: string
           description: string | null
           id: number
-          isReminderSent: boolean | null
+          is_reminder_sent: boolean | null
           priority: string
           reminderTime: string | null
           title: string
           url: string | null
+          user_id: string | null
         }
         Insert: {
           archived: boolean
@@ -75,11 +94,12 @@ export type Database = {
           createdAt?: string
           description?: string | null
           id?: number
-          isReminderSent?: boolean | null
+          is_reminder_sent?: boolean | null
           priority: string
           reminderTime?: string | null
           title: string
           url?: string | null
+          user_id?: string | null
         }
         Update: {
           archived?: boolean
@@ -87,18 +107,17 @@ export type Database = {
           createdAt?: string
           description?: string | null
           id?: number
-          isReminderSent?: boolean | null
+          is_reminder_sent?: boolean | null
           priority?: string
           reminderTime?: string | null
           title?: string
           url?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
     }
-    Views: {
-      [_ in never]: never
-    }
+    Views: Record<never, never>
     Functions: {
       call_send_reminder: {
         Args: Record<PropertyKey, never>
@@ -112,17 +131,30 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_users_with_tasks_and_reminders: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          email: string
+          id: string
+          reminders: Json
+          tasks: Json
+        }[]
+      }
+      get_users_with_tasks_to_remind: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          email: string
+          id: string
+          tasks: Json
+        }[]
+      }
       process_http_responses: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
     }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
+    Enums: Record<never, never>
+    CompositeTypes: Record<never, never>
   }
 }
 

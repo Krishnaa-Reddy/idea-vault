@@ -1,10 +1,10 @@
 export interface Task {
-  id: string;
+  id: number;
+  title: string;
   description: string;
   reminderTime: string;
-  user_email: string;
   url?: string;
-  isReminderSent: boolean;
+  is_reminder_sent: boolean;
   completed: boolean;
 }
 

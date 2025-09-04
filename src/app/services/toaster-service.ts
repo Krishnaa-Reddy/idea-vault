@@ -14,6 +14,7 @@ export class ToasterService {
   setToast(toast: Omit<Toast, 'id'>) {
     this.toast.set({
       ...toast,
+      closeButton: true,
       id: new Date().getTime(),
     });
   }

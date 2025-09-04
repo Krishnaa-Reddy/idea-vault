@@ -1,6 +1,6 @@
 import { Component, inject, input, signal } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideDelete, lucideChevronDown, lucidePencil } from '@ng-icons/lucide';
+import { lucideChevronDown, lucideDelete, lucidePencil } from '@ng-icons/lucide';
 import { BrnAlertDialogContent, BrnAlertDialogTrigger } from '@spartan-ng/brain/alert-dialog';
 import {
   HlmAlertDialog,
@@ -14,8 +14,8 @@ import {
 } from '@spartan-ng/helm/alert-dialog';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmIcon } from '@spartan-ng/helm/icon';
-import { TaskService } from '../../services/task.service';
 import { Task } from '../../core/models/task.interface';
+import { TaskService } from '../../services/task.service';
 
 @Component({
   selector: 'alert-dialog',
@@ -57,7 +57,7 @@ import { Task } from '../../core/models/task.interface';
     </hlm-alert-dialog>
   `,
 })
-export class AlertDialog {
+export class DeleteDialog {
   task = input.required<Task>();
   _tasks = inject(TaskService);
 
@@ -68,6 +68,6 @@ export class AlertDialog {
     setTimeout(() => {
       this.deletion.set('Delete');
       this._tasks.deleteTask(this.task().id);
-    }, 1000);
+    }, 200);
   }
 }

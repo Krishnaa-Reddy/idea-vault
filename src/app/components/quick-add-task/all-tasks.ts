@@ -1,31 +1,27 @@
-import { DATE_FORMAT } from './../../app';
-import { Component, inject, model } from '@angular/core';
-import { NgIcon, provideIcons } from '@ng-icons/core';
+import { Component, inject } from '@angular/core';
+import { provideIcons } from '@ng-icons/core';
 import {
+  lucideActivity,
   lucideCheck,
+  lucideClock,
+  lucideFlame,
   lucideLeaf,
   lucidePencil,
-  lucideFlame,
-  lucideActivity,
-  lucideClock,
 } from '@ng-icons/lucide';
 import { BrnCommandImports } from '@spartan-ng/brain/command';
+import { BrnSelectImports } from '@spartan-ng/brain/select';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmCommandImports } from '@spartan-ng/helm/command';
 import { HlmInput } from '@spartan-ng/helm/input';
-import { BrnSelectImports } from '@spartan-ng/brain/select';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
-import { EditDialog } from './edit-dialog';
-import { AlertDialog } from './alert-dialog';
-import { AddTask } from './add-task';
-import { isToday, TaskService } from '../../services/task.service';
-import { DatePipe, NgClass } from '@angular/common';
-import { Priority, Status } from '../../core/models/task.interface';
-import { HighlightBadge } from '../../directives/new-highlight';
-import { HlmIcon } from '@spartan-ng/helm/icon';
 import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
-import { BrnTooltipContentTemplate } from '@spartan-ng/brain/tooltip';
-import { HlmTooltip, HlmTooltipTrigger } from '@spartan-ng/helm/tooltip';
+import { Priority, Status } from '../../core/models/task.interface';
+import { isToday, TaskService } from '../../services/task.service';
+import { DATE_FORMAT } from './../../app';
+import { priorityIcon } from './../../utils/priority-icon';
+import { AddTask } from './add-task';
+import { SaveLocalTasksDialog } from './prompt-dialog';
+import { TasksList } from './tasks-list';
 
 @Component({
   selector: 'spartan-all-tasks',
@@ -35,19 +31,11 @@ import { HlmTooltip, HlmTooltipTrigger } from '@spartan-ng/helm/tooltip';
     BrnSelectImports,
     HlmSelectImports,
     HlmCardImports,
-    HighlightBadge,
-    HlmTooltipTrigger,
-    HlmTooltip,
-    NgClass,
     HlmInput,
-    EditDialog,
-    AlertDialog,
     AddTask,
-    DatePipe,
-    NgIcon,
-    HlmIcon,
     HlmSkeleton,
-    BrnTooltipContentTemplate,
+    TasksList,
+    SaveLocalTasksDialog,
   ],
   providers: [
     provideIcons({
@@ -61,6 +49,7 @@ import { HlmTooltip, HlmTooltipTrigger } from '@spartan-ng/helm/tooltip';
   ],
   template: `
     <section>
+      <local-tasks-dialog />
       <div class="flex justify-between items-center">
         <h2 class="text-xl font-semibold">Tasks</h2>
         <add-task />
@@ -112,7 +101,7 @@ import { HlmTooltip, HlmTooltipTrigger } from '@spartan-ng/helm/tooltip';
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
-        @if (tasksLoading()) {
+        @if (tasksStatus() === 'loading') {
           @for (i of [1, 2, 3, 4, 5, 6]; track i) {
             <section hlmCard class="group w-full">
               <div hlmCardContent class="flex flex-col gap-3">
@@ -125,96 +114,12 @@ import { HlmTooltip, HlmTooltipTrigger } from '@spartan-ng/helm/tooltip';
               </div>
             </section>
           }
-        } @else if (tasksError()) {
+        } @else if (tasksStatus() === 'error') {
           <p class="text-muted-foreground text-center col-span-full">
             Something's wrong. Please try later.
           </p>
         } @else {
-          @for (task of tasks(); track task.id) {
-            <section
-              hlmCard
-              class="group"
-              [highlightBadge]="isTaskNew(task.createdAt)"
-              [ngClass]="{
-                'border-green-500 shadow-md': task.completed,
-                'opacity-60': task.archived,
-                'w-full transition-all duration-200': true,
-              }"
-            >
-              <div hlmCardContent class="flex flex-col">
-                <div class="flex items-end justify-between gap-3 w-full">
-                  <div class="flex items-center gap-2 min-w-0 flex-1">
-                    @if (priorityIcon(task.priority); as prio) {
-                      <span class="flex-shrink-0">
-                        <ng-icon
-                          hlm
-                          [hlmTooltipTrigger]="task.priority"
-                          [name]="prio.icon"
-                          [color]="prio.color"
-                        />
-                      </span>
-                    }
-                    <div class="flex-1 min-w-0">
-                      @if (task.url) {
-                        <a
-                          href="{{ task.url }}"
-                          target="_blank"
-                          rel="noopener"
-                          class="block text-lg font-semibold text-blue-600 hover:underline truncate cursor-pointer"
-                          [ngClass]="{ 'line-through text-gray-500': task.completed }"
-                        >
-                          {{ task.title }}
-                        </a>
-                      } @else {
-                        <h3
-                          [hlmTooltipTrigger]="task.description"
-                          [aria-describedby]="task.title"
-                          class="block text-lg font-semibold truncate"
-                          [ngClass]="{ 'line-through text-gray-500': task.completed }"
-                        >
-                          {{ task.title }}
-                        </h3>
-                      }
-                    </div>
-                  </div>
-                  <div
-                    class="flex items-center gap-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                  >
-                    <edit-task-dialog [task]="task" />
-                    <alert-dialog [task]="task" />
-                  </div>
-                </div>
-                @if (task.description) {
-                  <hlm-tooltip>
-                    <div class="text-sm text-muted-foreground truncate italic" hlmTooltipTrigger>
-                      {{ task.description }}
-                    </div>
-                    <div
-                      *brnTooltipContent
-                      class="max-w-xl break-words whitespace-pre-line text-wrap italic"
-                    >
-                      {{ task.description }}
-                    </div>
-                  </hlm-tooltip>
-                }
-                @if (task.reminderTime) {
-                  <div class="flex items-center gap-1 text-sm text-gray-500 mt-2">
-                    <ng-icon name="lucideClock" class="w-4 h-4 text-gray-400" />
-                    <span>
-                      Due:
-                      <span class="font-medium text-gray-700">
-                        {{ task.reminderTime | date: _dateFormat }}
-                      </span>
-                    </span>
-                  </div>
-                }
-              </div>
-            </section>
-          } @empty {
-            <p class="text-muted-foreground text-center col-span-full">
-              No tasks found. Add one to proceed!
-            </p>
-          }
+          <tasks-list [tasks]="tasks()" />
         }
       </div>
     </section>
@@ -223,24 +128,12 @@ import { HlmTooltip, HlmTooltipTrigger } from '@spartan-ng/helm/tooltip';
 export class TasksComponent {
   private _taskService = inject(TaskService);
   tasks = this._taskService.filteredTasks;
-  tasksLoading = this._taskService.tasksLoading;
-  tasksError = this._taskService.tasksError;
+  tasksStatus = this._taskService.status;
 
   protected readonly _dateFormat = DATE_FORMAT;
 
-  filter$ = model([]);
-
   priorityIcon(priority: string) {
-    switch (priority) {
-      case 'High':
-        return { icon: 'lucideFlame', color: 'red', fill: true };
-      case 'Medium':
-        return { icon: 'lucideActivity', color: 'orange' };
-      case 'Low':
-        return { icon: 'lucideLeaf', color: 'green' };
-      default:
-        return null;
-    }
+    return priorityIcon(priority);
   }
 
   onSearch(event: Event) {

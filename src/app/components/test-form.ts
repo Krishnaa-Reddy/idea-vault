@@ -64,8 +64,9 @@ export class MultipleForms {
     reminderTime: new Date().toISOString(),
     completed: false,
     archived: false,
+    user_id: null,
     createdAt: Date.now().toString(),
     id: Date.now().valueOf(),
-    isReminderSent: null,
+    is_reminder_sent: null,
   };
 }

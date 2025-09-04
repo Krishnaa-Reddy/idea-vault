@@ -5,10 +5,11 @@ import 'https://deno.land/std@0.177.0/http/server.ts';
 import { createClient } from 'npm:@supabase/supabase-js';
 import { Resend } from 'npm:resend';
 
-import { fetchCategorizedTasks, updateTaskStatus } from './helpers/tasks.db.ts';
-import { groupTasksByRecipient } from './helpers/grouping.ts';
+import { updateTaskStatus } from './helpers/tasks.db.ts';
 import { formatEmailHtml, sendEmailReminder } from './services/email/index.ts';
 import { handleJobStatusUpdate } from './helpers/reminder_job_logs.db.ts';
+import { getUsersWithTasks } from './helpers/users.db.ts';
+import { categorizeTasks } from './helpers/categorize.ts';
 
 Deno.serve(async (req) => {
   const supabaseClient = createClient(
@@ -20,7 +21,6 @@ Deno.serve(async (req) => {
   let job_id: string | null = null;
 
   try {
-    // Parse request body (must contain job_id)
     const body = await req.json();
     job_id = body.job_id;
     if (!job_id) {
@@ -30,56 +30,53 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Mark job as processing
     const payload = { request_status: 'processing', started_at: new Date().toISOString() };
     await handleJobStatusUpdate(supabaseClient, job_id, 'processing', payload);
-    // Fetch categorized tasks
-    const tasks = await fetchCategorizedTasks(supabaseClient);
 
-    // Check if all categories are empty
-    const noTasks =
-      tasks.overdue.length === 0 && tasks.today.length === 0 && tasks.approaching.length === 0;
+    const usersWithTasks = await getUsersWithTasks(supabaseClient);
 
-    if (noTasks) {
+    if (usersWithTasks.length === 0) {
       await handleJobStatusUpdate(supabaseClient, job_id, 'completed', {
         request_status: 'completed',
-        response: { message: 'No tasks found for today.' },
+        response: { message: 'No users with tasks to remind.' },
         finished_at: new Date().toISOString(),
       });
 
-      return new Response(JSON.stringify({ message: 'No tasks found for today.' }), {
+      return new Response(JSON.stringify({ message: 'No users with tasks to remind.' }), {
         headers: { 'Content-Type': 'application/json' },
         status: 200,
       });
     }
 
-    // Process tasks by recipient
-    const groupedTasks = groupTasksByRecipient(tasks);
     let emailsSentCount = 0;
-    const recipientsProcessedCount = Object.keys(groupedTasks).length;
+    const recipientsProcessedCount = usersWithTasks.length;
 
-    for (const recipientKey in groupedTasks) {
-      const group = groupedTasks[recipientKey];
-      const userTasks = group.tasks;
+    for (const user of usersWithTasks) {
+      const categorizedTasks = categorizeTasks(user.tasks);
 
-      let emailSent = false;
+      const noTasks =
+        categorizedTasks.overdue.length === 0 &&
+        categorizedTasks.today.length === 0 &&
+        categorizedTasks.approaching.length === 0;
 
-      // Send email reminder
-      if (group.email) {
-        const { subject, html } = formatEmailHtml(userTasks, YOUR_WEBSITE_BASE_URL);
-        emailSent = await sendEmailReminder(resend, group.email, subject, html);
-        if (emailSent) emailsSentCount++;
+      if (noTasks) {
+        continue;
       }
 
-      // Update task status
-      const taskIdsToUpdate = [
-        ...userTasks.overdue.map((t) => t.id),
-        ...userTasks.today.map((t) => t.id),
-        ...userTasks.approaching.map((t) => t.id),
-      ];
-      
+      if (!user.email) {
+        console.warn(`User with ID ${user.id} has no email address. Skipping.`);
+        continue;
+      }
+
+      let emailSent = false;
+      const userEmail = user.email;
+
+      const { subject, html } = formatEmailHtml(categorizedTasks, YOUR_WEBSITE_BASE_URL);
+      emailSent = await sendEmailReminder(resend, userEmail, subject, html);
+      if (emailSent) emailsSentCount++;
+
+      const taskIdsToUpdate = user.tasks.map((t) => t.id);
       await updateTaskStatus(supabaseClient, taskIdsToUpdate, emailSent);
-      
     }
 
     const responseMessage = `Processed ${recipientsProcessedCount} recipients, sent ${emailsSentCount} emails.`;
