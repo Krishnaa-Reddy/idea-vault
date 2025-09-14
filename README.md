@@ -1,93 +1,76 @@
-# IdeaVault
+# Idea Vault
 
-A modern Angular application for capturing and organizing your ideas. Built with Angular, Tailwind CSS, and spartan/ui.
+A modern Angular app for capturing, organizing, and managing ideas with a clean UI and persistent storage.
 
-## Technologies Used
+[Angular](https://img.shields.io/badge/Angular-18+-red?style=flat-square&logo=angular)
 
-- **[Angular](https://angular.dev/)**: The core framework for building the application.
-- **[Angular CLI](https://angular.dev/tools/cli)**: Command-line interface for managing the project.
-- **[Tailwind CSS](https://tailwindcss.com/)**: A utility-first CSS framework for rapid UI development.
-- **[spartan/ui](https://www.spartan.ng/)**: A collection of accessible UI components built with Tailwind CSS and Radix UI.
+[Tailwind](https://img.shields.io/badge/Tailwind-CSS-blue?style=flat-square&logo=tailwindcss)
+
+[TypeScript](https://img.shields.io/badge/TypeScript-5+-blue?style=flat-square&logo=typescript)
 
 ---
 
-## Getting Started
+## 🚀 Features
 
-### Prerequisites
+- **Modern UI** with Tailwind + spartan/ui
+- **Persistent storage** (local + database)
+- **Smart idea management** (add, search, filter, edit, delete)
 
-Make sure you have Node.js and the Angular CLI installed on your machine.
+---
 
-### Installation
-
-1.  Clone the repository:
-    ```bash
-    git clone https://github.com/your-username/ideavault.git
-    ```
-2.  Navigate to the project directory:
-    ```bash
-    cd ideavault
-    ```
-3.  Install the dependencies:
-    ```bash
-    npm install
-    ```
-
-### Development Server
-
-To start a local development server, run the following command:
+## ⚡ Quick Start
 
 ```bash
+# Install Angular CLI
+npm install -g @angular/cli
+
+# Clone & setup
+git clone https://github.com/Krishnaa-Reddy/idea-vault.git
+cd idea-vault
+git checkout main
+npm install
+
+# Run dev server
 ng serve
 ```
 
-Open your browser and navigate to `http://localhost:4200/`. The application will automatically reload when you make changes to the source files.
+Visit 👉 `http://localhost:4200/`
 
 ---
 
-## Building and Deployment
+## 🛠️ Tech Stack
 
-To build the project for production, run:
-
-```bash
-ng build
-```
-
-The build artifacts will be stored in the `dist/` directory.
+- Angular 18+
+- TypeScript 5+
+- Tailwind CSS
+- spartan/ui
 
 ---
 
-## Code Scaffolding
-
-Use the Angular CLI to generate new components, services, or other project files. For example:
+## 📦 Deployment
 
 ```bash
-ng generate component component-name
+ng build --configuration=production
 ```
 
-To see all available options, use the `--help` flag:
-
-```bash
-ng generate --help
-```
+Deploy `dist/` to **Netlify**, **Vercel**, **Firebase**, or **GitHub Pages**.
 
 ---
 
-## Running Tests
+## 🤝 Contributing
 
-### Unit Tests
+1. Fork & create a branch
+2. Make changes and commit
+3. Open a PR 🚀
 
-To execute the unit tests, run:
+---
 
-```bash
-ng test
-```
+## 👤 Author
 
-### End-to-End Tests
+**Krishna Reddy**
 
-To run end-to-end tests, use the following command:
+GitHub: [@Krishnaa-Reddy](https://github.com/Krishnaa-Reddy)
 
-```bash
-ng e2e
-```
+---
 
-**Note:** Angular CLI does not include a default e2e testing framework. You will need to install one separately.
+⭐ Star this repo if you like it!
