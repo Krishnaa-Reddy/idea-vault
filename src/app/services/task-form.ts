@@ -1,15 +1,15 @@
 import { computed, effect, inject, Injectable, OnDestroy } from '@angular/core';
-import { NonNullableFormBuilder, Validators } from '@angular/forms';
-import { Priority, Task, TaskUpdate } from '../core/models/task.interface';
-import {
-  titleValidator,
-  urlValidator,
-  urlForbiddenValidator,
-} from '../validators/url-validator.validator';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { isFullUrl, dateToISO, ISOtoDate } from '../utils';
+import { NonNullableFormBuilder, Validators } from '@angular/forms';
 import { map, of } from 'rxjs';
 import { StatusFields } from '../components/shared/status-fiels-section';
+import { Priority, Task, TaskInsert, TaskUpdate } from '../core/models/task.interface';
+import { dateToISO, isFullUrl, ISOtoDate } from '../utils';
+import {
+  titleValidator,
+  urlForbiddenValidator,
+  urlValidator,
+} from '../validators/url-validator.validator';
 
 @Injectable({
   providedIn: 'root',
@@ -64,7 +64,7 @@ export class TaskFormService implements OnDestroy {
     });
   }
 
-  constructTaskInsert() {
+  constructTaskInsert(): TaskInsert {
     const formData = this.taskGroup.getRawValue();
     return {
       ...formData,

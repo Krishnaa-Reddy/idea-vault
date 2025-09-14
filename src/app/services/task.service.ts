@@ -92,7 +92,7 @@ export class TaskService extends TasksSupabase {
 
     const tasksToInsert: TaskInsert[] = localTasks.map((task) => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { id, ...rest } = task;
+      const { id, user_id, ...rest } = task;
       return rest;
     });
 
@@ -148,7 +148,7 @@ export class TaskService extends TasksSupabase {
     else {
       return this.insert(task).pipe(
         tap((res) => {
-          if(res.error) {
+          if (res.error) {
             this.toaster.setToast({
               message: res.error.message || 'Something went wrong!',
               type: 'error',

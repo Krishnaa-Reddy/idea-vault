@@ -29,15 +29,16 @@ import { TasksLocalService } from '../../services/tasks-local.service';
     HlmAlertDialogCancelButton,
     HlmAlertDialogActionButton,
     HlmAlertDialogContent,
-    HlmButton
-],
+    HlmButton,
+  ],
   template: `
     <hlm-alert-dialog #promtDialog>
       <hlm-alert-dialog-content *brnAlertDialogContent="let ctx" #ctx>
         <hlm-alert-dialog-header>
           <h2 hlmAlertDialogTitle>Do you want to sync your local tasks with your account?</h2>
           <p hlmAlertDialogDescription>
-            You have a total of {{ _localTasks().length }} tasks locally to sync. Never loose them again.
+            You have a total of {{ _localTasks().length }} tasks locally to sync. Never loose them
+            again.
           </p>
         </hlm-alert-dialog-header>
         <hlm-alert-dialog-footer>

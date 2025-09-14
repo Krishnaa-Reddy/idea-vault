@@ -43,7 +43,13 @@ import { IvTooltipComponent } from './iv-tooltip';
   template: `
     <hlm-sheet side="right">
       <iv-tooltip value="Settings" [lazy]="true">
-        <button hlmBtn size="icon" variant="secondary" class="size-8 cursor-pointer" brnSheetTrigger>
+        <button
+          hlmBtn
+          size="icon"
+          variant="secondary"
+          class="size-8 cursor-pointer"
+          brnSheetTrigger
+        >
           <ng-icon hlm size="sm" name="lucideSettings" />
         </button>
       </iv-tooltip>

@@ -72,12 +72,12 @@ export class AddTask {
       this.submitTask.set('Submitting...');
       const newTask = this._taskFormService.constructTaskInsert();
       this._taskService.addTask(newTask).subscribe({
-        error: (er) => console.log('Something went wrong!', er),
+        error: (er) => console.log('Something went wrong! Please try later.', er),
         complete: () => {
           this.submitTask.set('Submit');
           this._taskFormService.taskGroup.reset();
           this._dialogRef()?.close();
-        }
+        },
       });
     }
   }

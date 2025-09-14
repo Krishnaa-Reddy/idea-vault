@@ -38,8 +38,8 @@ import { EditDialog } from './edit-dialog';
     DatePipe,
     NgIcon,
     HlmIcon,
-    IvTooltipComponent
-],
+    IvTooltipComponent,
+  ],
   providers: [
     provideIcons({
       lucideCheck,
