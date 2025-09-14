@@ -1,7 +1,7 @@
 import { computed, effect, inject, Injectable, linkedSignal, signal } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
+import { rxResource, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Session } from '@supabase/supabase-js';
-import { EMPTY, map, of, tap } from 'rxjs';
+import { distinctUntilChanged, EMPTY, filter, map, of, switchMap, tap } from 'rxjs';
 import { Priority, Status, Task, TaskInsert, TaskUpdate } from '../core/models/task.interface';
 import { TasksSupabase } from './supabase/tasks.supabase';
 import { TasksLocalService } from './tasks-local.service';
@@ -33,7 +33,12 @@ export class TaskService extends TasksSupabase {
   private tasksLocalService = inject(TasksLocalService);
   private userService = inject(UserService);
 
-  _session = this.userService._session;
+  _session = toSignal(
+    toObservable(this.userService._session).pipe(
+      distinctUntilChanged((prev, curr) => prev?.user?.id === curr?.user?.id),
+    ),
+    { initialValue: null },
+  );
 
   handleError(error?: Error | null) {
     if (error) {
@@ -46,13 +51,19 @@ export class TaskService extends TasksSupabase {
     }
   }
 
+  tasks$ = toObservable(this._session).pipe(
+    distinctUntilChanged((prev, curr) => prev?.user?.id === curr?.user?.id),
+    filter(Boolean),
+    switchMap(() => this.select()),
+    tap((res) => this.handleError(res?.error)),
+    map((res) => res?.data ?? []),
+  );
+
   private tasksResource = rxResource<Task[], Session | null>({
-    stream: () => {
-      if(!this._session()) return of(this.tasksLocalService._tasks());
-      return this.select().pipe(
-        tap((res) => this.handleError(res?.error)),
-        map((res) => res?.data ?? []),
-      );
+    params: () => this._session(),
+    stream: (params) => {
+      if (!params.params) return of(this.tasksLocalService._tasks());
+      return this.tasks$;
     },
   }).asReadonly();
 
@@ -137,13 +148,19 @@ export class TaskService extends TasksSupabase {
     else {
       return this.insert(task).pipe(
         tap((res) => {
+          if(res.error) {
+            this.toaster.setToast({
+              message: res.error.message || 'Something went wrong!',
+              type: 'error',
+            });
+          }
           if (res.data) {
             this._tasks.update((tasks) => [...res.data, ...tasks]);
+            this.toaster.setToast({
+              message: 'Task added successfully',
+              type: 'success',
+            });
           }
-          this.toaster.setToast({
-            message: 'Task added successfully',
-            type: 'success',
-          });
         }),
       );
     }

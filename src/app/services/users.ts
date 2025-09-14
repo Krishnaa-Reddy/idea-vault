@@ -1,6 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { AuthSession } from '@supabase/supabase-js';
-import { catchError, from, of, tap } from 'rxjs';
+import { catchError, distinctUntilChanged, from, of, tap } from 'rxjs';
 import { _supabase } from './supabase/supabase-client';
 import { TasksLocalService } from './tasks-local.service';
 import { ToasterService } from './toaster-service';
@@ -9,19 +10,26 @@ import { ToasterService } from './toaster-service';
   providedIn: 'root',
 })
 export class UserService {
-  _session = signal<AuthSession | null>(null);
+  private session = signal<AuthSession | null>(null);
+  _session = toSignal(
+    toObservable(this.session).pipe(
+      distinctUntilChanged((prev, curr) => prev?.user?.id === curr?.user?.id),
+    ),
+    { initialValue: null },
+  );
+
   private toaster = inject(ToasterService);
   private localPreference = inject(TasksLocalService)._preference;
 
   constructor() {
     _supabase.auth.onAuthStateChange((_, session) => {
-      this._session.set(session);
+      this.session.set(session);
     });
   }
 
   signIn() {
     if (this._session()) return;
-    // This is the place where its confirm that, I am logging in for the first time.
+    // NOTE: This is the place where its confirm that, I am logging in for the first time.
     from(
       _supabase.auth.signInWithOAuth({
         provider: 'google',
