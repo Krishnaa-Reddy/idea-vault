@@ -2,11 +2,13 @@
 
 A modern Angular app for capturing, organizing, and managing ideas with a clean UI and persistent storage.
 
-[Angular](https://img.shields.io/badge/Angular-18+-red?style=flat-square&logo=angular)
+[Angular](https://angular.dev/)
 
-[Tailwind](https://img.shields.io/badge/Tailwind-CSS-blue?style=flat-square&logo=tailwindcss)
+[Tailwind](http://tailwindcss.com/docs)
 
-[TypeScript](https://img.shields.io/badge/TypeScript-5+-blue?style=flat-square&logo=typescript)
+[Spartan UI](https://www.spartan.ng/)
+
+[TypeScript](https://www.typescriptlang.org/docs/)
 
 ---
 
