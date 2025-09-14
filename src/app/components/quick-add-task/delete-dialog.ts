@@ -1,6 +1,6 @@
-import { Component, inject, input, signal, viewChild } from '@angular/core';
+import { Component, inject, input, signal } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideDelete, lucideChevronDown, lucidePencil } from '@ng-icons/lucide';
+import { lucideChevronDown, lucideDelete, lucidePencil } from '@ng-icons/lucide';
 import { BrnAlertDialogContent, BrnAlertDialogTrigger } from '@spartan-ng/brain/alert-dialog';
 import {
   HlmAlertDialog,
@@ -14,8 +14,8 @@ import {
 } from '@spartan-ng/helm/alert-dialog';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmIcon } from '@spartan-ng/helm/icon';
-import { TaskService } from '../../services/task.service';
 import { Task } from '../../core/models/task.interface';
+import { TaskService } from '../../services/task.service';
 
 @Component({
   selector: 'alert-dialog',
@@ -49,15 +49,15 @@ import { Task } from '../../core/models/task.interface';
         </hlm-alert-dialog-header>
         <hlm-alert-dialog-footer>
           <button hlmAlertDialogCancel (click)="ctx.close()">Cancel</button>
-          <button hlmAlertDialogAction (click)="onDelete();" variant="destructive" >
-            {{deletion()}}
+          <button hlmAlertDialogAction (click)="onDelete()" variant="destructive">
+            {{ deletion() }}
           </button>
         </hlm-alert-dialog-footer>
       </hlm-alert-dialog-content>
     </hlm-alert-dialog>
   `,
 })
-export class AlertDialog {
+export class DeleteDialog {
   task = input.required<Task>();
   _tasks = inject(TaskService);
 
@@ -66,9 +66,8 @@ export class AlertDialog {
   onDelete() {
     this.deletion.set('Deleting...');
     setTimeout(() => {
-      this._tasks.deleteTask(this.task().id);
       this.deletion.set('Delete');
-    }, 1000);
+      this._tasks.deleteTask(this.task().id);
+    }, 200);
   }
-
 }

@@ -1,106 +1,122 @@
-// Follow this setup guide to integrate the Deno language server with your editor:
-// https://deno.land/manual/getting_started/setup_your_environment
-// This enables autocomplete, go to definition, etc.
+// Setup Supabase Edge Runtime types
+import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
+import 'https://deno.land/std@0.177.0/http/server.ts';
 
-// Setup type definitions for built-in Supabase Runtime APIs
-import "jsr:@supabase/functions-js/edge-runtime.d.ts"
-import "https://deno.land/std@0.177.0/http/server.ts";
-import "https://deno.land/x/dotenv/load.ts";
 import { createClient } from 'npm:@supabase/supabase-js';
 import { Resend } from 'npm:resend';
 
-import { fetchOverdueTasks } from './helpers/tasks.ts';
-import { groupTasksByRecipient } from './helpers/grouping.ts';
-import { formatReminderDateTime } from './helpers/datetime.ts';
-import { updateTaskStatus } from './helpers/db.ts';
+import { updateTaskStatus } from './helpers/tasks.db.ts';
 import { formatEmailHtml, sendEmailReminder } from './services/email/index.ts';
-import { formatWhatsappMessage, sendWhatsappReminder } from './services/whatsapp/index.ts';
+import { handleJobStatusUpdate } from './helpers/reminder_job_logs.db.ts';
+import { getUsersWithTasks } from './helpers/users.db.ts';
+import { categorizeTasks } from './helpers/categorize.ts';
 
-console.log('Hello from Functions!');
-
-Deno.serve(async () => {
+Deno.serve(async (req) => {
   const supabaseClient = createClient(
     Deno.env.get('SUPABASE_URL') ?? '',
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
   );
   const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
   const YOUR_WEBSITE_BASE_URL = Deno.env.get('YOUR_WEBSITE_BASE_URL');
-
-  const TWILIO_ACCOUNT_SID = Deno.env.get('TWILIO_ACCOUNT_SID');
-  const TWILIO_AUTH_TOKEN = Deno.env.get('TWILIO_AUTH_TOKEN');
-  const TWILIO_WHATSAPP_NUMBER = Deno.env.get('TWILIO_WHATSAPP_NUMBER');
-
-  let emailsSentCount = 0;
-  let whatsappMessagesSentCount = 0;
-  let recipientsProcessedCount = 0;
+  let job_id: string | null = null;
 
   try {
-    const tasks = await fetchOverdueTasks(supabaseClient);
+    const body = await req.json();
+    job_id = body.job_id;
+    if (!job_id) {
+      return new Response(JSON.stringify({ error: 'Missing job_id' }), {
+        headers: { 'Content-Type': 'application/json' },
+        status: 400,
+      });
+    }
 
-    if (!tasks || tasks.length === 0) {
-      return new Response(JSON.stringify({ message: 'No overdue tasks found.' }), {
+    const payload = { request_status: 'processing', started_at: new Date().toISOString() };
+    await handleJobStatusUpdate(supabaseClient, job_id, 'processing', payload);
+
+    const usersWithTasks = await getUsersWithTasks(supabaseClient);
+
+    if (usersWithTasks.length === 0) {
+      await handleJobStatusUpdate(supabaseClient, job_id, 'completed', {
+        request_status: 'completed',
+        response: { message: 'No users with tasks to remind.' },
+        finished_at: new Date().toISOString(),
+      });
+
+      return new Response(JSON.stringify({ message: 'No users with tasks to remind.' }), {
         headers: { 'Content-Type': 'application/json' },
         status: 200,
       });
     }
 
-    const groupedTasks = groupTasksByRecipient(tasks);
-    recipientsProcessedCount = Object.keys(groupedTasks).length;
+    let emailsSentCount = 0;
+    const recipientsProcessedCount = usersWithTasks.length;
 
-    for (const recipientKey in groupedTasks) {
-      const group = groupedTasks[recipientKey];
-      const userTasks = group.tasks;
+    for (const user of usersWithTasks) {
+      const categorizedTasks = categorizeTasks(user.tasks);
+
+      const noTasks =
+        categorizedTasks.overdue.length === 0 &&
+        categorizedTasks.today.length === 0 &&
+        categorizedTasks.approaching.length === 0;
+
+      if (noTasks) {
+        continue;
+      }
+
+      if (!user.email) {
+        console.warn(`User with ID ${user.id} has no email address. Skipping.`);
+        continue;
+      }
 
       let emailSent = false;
-      let whatsappSent = false;
+      const userEmail = user.email;
 
-      // Send Email Reminder
-      if (group.email) {
-        const { subject, html } = formatEmailHtml(userTasks, YOUR_WEBSITE_BASE_URL);
-        emailSent = await sendEmailReminder(resend, group.email, subject, html);
-        if (emailSent) emailsSentCount++;
-      }
+      const { subject, html } = formatEmailHtml(categorizedTasks, YOUR_WEBSITE_BASE_URL);
+      emailSent = await sendEmailReminder(resend, userEmail, subject, html);
+      if (emailSent) emailsSentCount++;
 
-      // Send WhatsApp Reminder
-      if (group.whatsapp) {
-        const message = formatWhatsappMessage(userTasks, YOUR_WEBSITE_BASE_URL);
-        whatsappSent = await sendWhatsappReminder(
-          group.whatsapp,
-          message,
-          TWILIO_ACCOUNT_SID,
-          TWILIO_AUTH_TOKEN,
-          TWILIO_WHATSAPP_NUMBER,
-        );
-        if (whatsappSent) whatsappMessagesSentCount++;
-      }
-
-      // Update task status for the tasks in this group
-      const taskIdsToUpdate = userTasks.map((task) => task.id);
-      await updateTaskStatus(supabaseClient, taskIdsToUpdate, emailSent, whatsappSent);
+      const taskIdsToUpdate = user.tasks.map((t) => t.id);
+      await updateTaskStatus(supabaseClient, taskIdsToUpdate, emailSent);
     }
 
-    const responseMessage = `Reminder emails processed. Sent ${emailsSentCount} email${emailsSentCount === 1 ? '' : 's'} and ${whatsappMessagesSentCount} WhatsApp message${whatsappMessagesSentCount === 1 ? '' : 's'} to ${recipientsProcessedCount} recipient${recipientsProcessedCount === 1 ? '' : 's'}.`;
-    return new Response(JSON.stringify({ message: responseMessage, emailsSent: emailsSentCount, whatsappMessagesSent: whatsappMessagesSentCount, recipientsProcessed: recipientsProcessedCount }), {
-      headers: { 'Content-Type': 'application/json' },
-      status: 200,
+    const responseMessage = `Processed ${recipientsProcessedCount} recipients, sent ${emailsSentCount} emails.`;
+
+    await handleJobStatusUpdate(supabaseClient, job_id, 'completed', {
+      request_status: 'completed',
+      status_code: 200,
+      response: {
+        message: responseMessage,
+        emailsSent: emailsSentCount,
+        recipientsProcessed: recipientsProcessedCount,
+      },
+      finished_at: new Date().toISOString(),
     });
-  } catch (initialError) {
-    console.error('Unhandled error in Deno.serve:', initialError);
-    return new Response(JSON.stringify({ error: initialError.message || 'An unexpected error occurred.' }), {
+
+    return new Response(
+      JSON.stringify({
+        message: responseMessage,
+        emailsSent: emailsSentCount,
+        recipientsProcessed: recipientsProcessedCount,
+      }),
+      {
+        headers: { 'Content-Type': 'application/json' },
+        status: 200,
+      },
+    );
+  } catch (err) {
+    console.error('Edge function error:', err);
+
+    if (job_id) {
+      await handleJobStatusUpdate(supabaseClient, job_id, 'failed', {
+        request_status: 'failed',
+        error: err.message || 'Unknown error',
+        finished_at: new Date().toISOString(),
+      });
+    }
+
+    return new Response(JSON.stringify({ error: err.message || 'Unexpected error' }), {
       headers: { 'Content-Type': 'application/json' },
       status: 500,
     });
   }
 });
-
-/* To invoke locally:
-
-  1. Run `supabase start` (see: https://supabase.com/docs/reference/cli/supabase-start)
-  2. Make an HTTP request:
-
-  curl -i --location --request POST 'http://127.0.0.1:54321/functions/v1/send-reminders' \
-    --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0' \
-    --header 'Content-Type: application/json' \
-    --data '{"name":"Functions"}'
-
-*/

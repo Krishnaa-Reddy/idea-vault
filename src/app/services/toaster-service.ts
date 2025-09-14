@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { ToastT, toast } from 'ngx-sonner';
+import { ToastT } from 'ngx-sonner';
 
 export type Toast = ToastT & { message: string };
 
@@ -14,19 +14,8 @@ export class ToasterService {
   setToast(toast: Omit<Toast, 'id'>) {
     this.toast.set({
       ...toast,
+      closeButton: true,
       id: new Date().getTime(),
     });
-  };
-
-  // show() {
-  //   this.toaster.setToast({
-  //     message: 'ah',
-  //     description: '',
-  //     action: {
-  //       label: 'Close',
-  //       onClick: () => console.log('Closed')
-  //     },
-  //     id: new Date().getTime()
-  //   });
-  // }
+  }
 }

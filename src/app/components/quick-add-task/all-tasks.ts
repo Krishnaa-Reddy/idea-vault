@@ -1,28 +1,27 @@
-import { Component, inject, model, effect } from '@angular/core';
-import { NgIcon, provideIcons } from '@ng-icons/core';
+import { Component, inject } from '@angular/core';
+import { provideIcons } from '@ng-icons/core';
 import {
+  lucideActivity,
   lucideCheck,
+  lucideClock,
+  lucideFlame,
   lucideLeaf,
   lucidePencil,
-  lucideFlame,
-  lucideActivity,
 } from '@ng-icons/lucide';
 import { BrnCommandImports } from '@spartan-ng/brain/command';
+import { BrnSelectImports } from '@spartan-ng/brain/select';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmCommandImports } from '@spartan-ng/helm/command';
 import { HlmInput } from '@spartan-ng/helm/input';
-import { BrnSelectImports } from '@spartan-ng/brain/select';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
-import { HlmTooltipTrigger } from '@spartan-ng/helm/tooltip';
-import { EditDialog } from './edit-dialog';
-import { AlertDialog } from './alert-dialog';
-import { AddTask } from './add-task';
-import { isToday, TaskService } from '../../services/task.service';
-import { DatePipe, NgClass } from '@angular/common';
-import { Priority, Status } from '../../core/models/task.interface';
-import { HighlightBadge } from '../../directives/new-highlight';
-import { HlmIcon } from '@spartan-ng/helm/icon';
 import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
+import { Priority, Status } from '../../core/models/task.interface';
+import { isToday, TaskService } from '../../services/task.service';
+import { DATE_FORMAT } from './../../app';
+import { priorityIcon } from './../../utils/priority-icon';
+import { AddTask } from './add-task';
+import { SaveLocalTasksDialog } from './prompt-dialog';
+import { TasksList } from './tasks-list';
 
 @Component({
   selector: 'spartan-all-tasks',
@@ -32,21 +31,25 @@ import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
     BrnSelectImports,
     HlmSelectImports,
     HlmCardImports,
-    HighlightBadge,
-    HlmTooltipTrigger,
-    NgClass,
     HlmInput,
-    EditDialog,
-    AlertDialog,
     AddTask,
-    DatePipe,
-    NgIcon,
-    HlmIcon,
     HlmSkeleton,
+    TasksList,
+    SaveLocalTasksDialog,
   ],
-  providers: [provideIcons({ lucideCheck, lucideLeaf, lucidePencil, lucideFlame, lucideActivity })],
+  providers: [
+    provideIcons({
+      lucideCheck,
+      lucideClock,
+      lucideLeaf,
+      lucidePencil,
+      lucideFlame,
+      lucideActivity,
+    }),
+  ],
   template: `
     <section>
+      <local-tasks-dialog />
       <div class="flex justify-between items-center">
         <h2 class="text-xl font-semibold">Tasks</h2>
         <add-task />
@@ -98,89 +101,26 @@ import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
-        @if(tasksLoading()) { @for (i of [1,2,3,4,5,6]; track i) {
-        <section hlmCard class="group w-full">
-          <div hlmCardContent class="flex flex-col gap-3">
-            <hlm-skeleton class="h-6 w-3/4" />
-            <hlm-skeleton class="h-4 w-1/2" />
-            <div class="flex items-center gap-2">
-              <hlm-skeleton class="h-4 w-1/4" />
-              <hlm-skeleton class="h-4 w-1/4" />
-            </div>
-          </div>
-        </section>
-        } } @else if (tasksError()) {
-        <p class="text-muted-foreground text-center col-span-full">
-          Something's wrong. Please try later.
-        </p>
-        } @else { @for (task of tasks(); track task.id) {
-        <section
-          hlmCard
-          class="group"
-          [highlightBadge]="isTaskNew(task.createdAt)"
-          [ngClass]="{
-              'border-green-500 shadow-md': task.completed,
-              'opacity-60': task.archived,
-              'w-full transition-all duration-200': true,
-            }"
-        >
-          <div hlmCardContent class="flex items-center justify-between">
-            <div class="flex items-center gap-3 flex-auto min-w-0">
-              <div class="flex flex-col w-full">
-                <div class="flex gap-2 items-center flex-auto min-w-0">
-                  <span class="flex-shrink-0">
-                    @if (task.priority === 'High') {
-                    <ng-icon hlmTooltipTrigger="High" hlm name="lucideFlame" color="red" fill /> }
-                    @if (task.priority === 'Medium') {
-                    <ng-icon hlmTooltipTrigger="Medium" hlm name="lucideActivity" color="orange" />
-                    } @if (task.priority === 'Low') {
-                    <ng-icon hlmTooltipTrigger="Low" hlm name="lucideLeaf" color="green" /> }
-                  </span>
-                  <div class="flex-1 min-w-0">
-                    @if (task.url) {
-                    <a
-                      href="{{ task.url }}"
-                      target="_blank"
-                      rel="noopener"
-                      class="block text-lg font-semibold text-blue-600 hover:underline truncate cursor-pointer"
-                      [ngClass]="{ 'line-through text-gray-500': task.completed }"
-                    >
-                      {{ task.description }}
-                    </a>
-                    } @else {
-                    <h3
-                      [hlmTooltipTrigger]="task.description"
-                      [aria-describedby]="task.description"
-                      class="block text-lg font-semibold truncate"
-                      [ngClass]="{ 'line-through text-gray-500': task.completed }"
-                    >
-                      {{ task.description }}
-                    </h3>
-                    }
-                  </div>
+        @if (tasksStatus() === 'loading') {
+          @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+            <section hlmCard class="group w-full">
+              <div hlmCardContent class="flex flex-col gap-3">
+                <hlm-skeleton class="h-6 w-3/4" />
+                <hlm-skeleton class="h-4 w-1/2" />
+                <div class="flex items-center gap-2">
+                  <hlm-skeleton class="h-4 w-1/4" />
+                  <hlm-skeleton class="h-4 w-1/4" />
                 </div>
-
-                @if (task.reminderTime) {
-                <p class="text-sm text-gray-500">
-                  Due: {{ task.reminderTime | date : 'MMM d, y, h:mm a' }}
-                </p>
-                }
               </div>
-            </div>
-
-            <div
-              class="flex items-center gap-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-            >
-              <edit-task-dialog [task]="task" />
-              <alert-dialog [task]="task" />
-            </div>
-          </div>
-        </section>
-        } @empty {
-        <p class="text-muted-foreground text-center col-span-full">
-          No tasks found. Add one to proceed!
-        </p>
-        } }
+            </section>
+          }
+        } @else if (tasksStatus() === 'error') {
+          <p class="text-muted-foreground text-center col-span-full">
+            Something's wrong. Please try later.
+          </p>
+        } @else {
+          <tasks-list [tasks]="tasks()" />
+        }
       </div>
     </section>
   `,
@@ -188,15 +128,12 @@ import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
 export class TasksComponent {
   private _taskService = inject(TaskService);
   tasks = this._taskService.filteredTasks;
-  tasksLoading = this._taskService.tasksLoading;
-  tasksError = this._taskService.tasksError;
+  tasksStatus = this._taskService.status;
 
-  filter$ = model([]);
+  protected readonly _dateFormat = DATE_FORMAT;
 
-  constructor() {
-    effect(() => {
-      console.log(this.filter$());
-    });
+  priorityIcon(priority: string) {
+    return priorityIcon(priority);
   }
 
   onSearch(event: Event) {
@@ -205,12 +142,10 @@ export class TasksComponent {
   }
 
   onFilter(priorities: Priority[]) {
-    console.log(priorities);
     this._taskService.setPriorityFilters(priorities);
   }
 
   onStatusFilter(statuses: Status[]) {
-    console.log(statuses);
     this._taskService.setStatusFilters(statuses);
   }
 

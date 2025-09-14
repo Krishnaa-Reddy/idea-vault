@@ -6,7 +6,7 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export type Database = {
+export interface Database {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
@@ -14,52 +14,147 @@ export type Database = {
   }
   public: {
     Tables: {
+      reminder_job_logs: {
+        Row: {
+          error: string | null
+          finished_at: string | null
+          id: number
+          job_id: string
+          note: string | null
+          raw_response: Json | null
+          request_status: string | null
+          response: Json | null
+          run_at: string | null
+          started_at: string | null
+          status_code: number | null
+        }
+        Insert: {
+          error?: string | null
+          finished_at?: string | null
+          id?: number
+          job_id: string
+          note?: string | null
+          raw_response?: Json | null
+          request_status?: string | null
+          response?: Json | null
+          run_at?: string | null
+          started_at?: string | null
+          status_code?: number | null
+        }
+        Update: {
+          error?: string | null
+          finished_at?: string | null
+          id?: number
+          job_id?: string
+          note?: string | null
+          raw_response?: Json | null
+          request_status?: string | null
+          response?: Json | null
+          run_at?: string | null
+          started_at?: string | null
+          status_code?: number | null
+        }
+        Relationships: []
+      }
+      reminders: {
+        Row: {
+          enable_reminder: boolean
+          id: number
+          user_id: string
+        }
+        Insert: {
+          enable_reminder?: boolean
+          id?: never
+          user_id: string
+        }
+        Update: {
+          enable_reminder?: boolean
+          id?: never
+          user_id?: string
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           archived: boolean
           completed: boolean
           createdAt: string
-          description: string
+          description: string | null
           id: number
-          priority: string | null
+          is_reminder_sent: boolean | null
+          priority: string
           reminderTime: string | null
+          title: string
           url: string | null
+          user_id: string | null
         }
         Insert: {
-          archived?: boolean
-          completed?: boolean
+          archived: boolean
+          completed: boolean
           createdAt?: string
-          description?: string
+          description?: string | null
           id?: number
-          priority?: string | null
+          is_reminder_sent?: boolean | null
+          priority: string
           reminderTime?: string | null
+          title: string
           url?: string | null
+          user_id?: string | null
         }
         Update: {
           archived?: boolean
           completed?: boolean
           createdAt?: string
-          description?: string
+          description?: string | null
           id?: number
-          priority?: string | null
+          is_reminder_sent?: boolean | null
+          priority?: string
           reminderTime?: string | null
+          title?: string
           url?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
     }
-    Views: {
-      [_ in never]: never
-    }
+    Views: Record<never, never>
     Functions: {
-      [_ in never]: never
+      call_send_reminder: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      call_send_reminder_by_claude: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      debug_http_structure: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      get_users_with_tasks_and_reminders: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          email: string
+          id: string
+          reminders: Json
+          tasks: Json
+        }[]
+      }
+      get_users_with_tasks_to_remind: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          email: string
+          id: string
+          tasks: Json
+        }[]
+      }
+      process_http_responses: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
+    Enums: Record<never, never>
+    CompositeTypes: Record<never, never>
   }
 }
 

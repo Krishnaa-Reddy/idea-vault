@@ -1,53 +1,12 @@
 import { computed, effect, inject, Injectable, linkedSignal, signal } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
-import { map, tap } from 'rxjs';
+import { rxResource, toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { Session } from '@supabase/supabase-js';
+import { distinctUntilChanged, EMPTY, filter, map, of, switchMap, tap } from 'rxjs';
 import { Priority, Status, Task, TaskInsert, TaskUpdate } from '../core/models/task.interface';
 import { TasksSupabase } from './supabase/tasks.supabase';
+import { TasksLocalService } from './tasks-local.service';
 import { ToasterService } from './toaster-service';
-
-const testTasks: Task[] = [
-  {
-    id: 1,
-    description:
-      'Buy groceries; Buy groceries;  Buy groceries; Buy groceries;  Buy groceries;  Buy groceries; ',
-    completed: false,
-    archived: false,
-    createdAt: new Date().toISOString(),
-    priority: 'High',
-    reminderTime: null,
-    url: null,
-  },
-  {
-    id: 2,
-    description: 'Finish project report',
-    completed: false,
-    archived: false,
-    createdAt: new Date().toISOString(),
-    priority: 'Medium',
-    reminderTime: null,
-    url: null,
-  },
-  {
-    id: 3,
-    description: 'Call mom',
-    completed: true,
-    archived: false,
-    createdAt: new Date().toISOString(),
-    priority: 'Low',
-    reminderTime: null,
-    url: null,
-  },
-  {
-    id: 4,
-    description: 'Go to the gym',
-    completed: false,
-    archived: true,
-    createdAt: new Date().toISOString(),
-    priority: 'High',
-    reminderTime: null,
-    url: null,
-  },
-];
+import { UserService } from './users';
 
 export const isToday = (date: string | Date) => {
   const todayMidnight = new Date();
@@ -60,8 +19,8 @@ export const isToday = (date: string | Date) => {
 const matchStatus = (status: Status, task: Task) => {
   const statusChecks: Record<Status, (task: Task) => boolean> = {
     new: (t) => isToday(t.createdAt),
-    completed: (t) => t.completed,
-    archived: (t) => t.archived,
+    completed: (t) => t.completed || false,
+    archived: (t) => t.archived || false,
     pending: (t) => !isToday(t.createdAt) && !t.completed && !t.archived,
   };
 
@@ -71,9 +30,15 @@ const matchStatus = (status: Status, task: Task) => {
 @Injectable({ providedIn: 'root' })
 export class TaskService extends TasksSupabase {
   private toaster = inject(ToasterService);
+  private tasksLocalService = inject(TasksLocalService);
+  private userService = inject(UserService);
 
-  // NOTE: We can set/update tasks/resource as well with this.
-  // we can use this to replace - somehow below tasks phase.
+  _session = toSignal(
+    toObservable(this.userService._session).pipe(
+      distinctUntilChanged((prev, curr) => prev?.user?.id === curr?.user?.id),
+    ),
+    { initialValue: null },
+  );
 
   handleError(error?: Error | null) {
     if (error) {
@@ -86,41 +51,72 @@ export class TaskService extends TasksSupabase {
     }
   }
 
-  /// NOTE: The biggest problem with rxResource is
-  // They now throw an error if no resource and we try to access value.
-  // That's where the root cause; this was not the behavior in v19
-  // New work around: have to check hasValue() before we access it.
-  private tasksResource = rxResource<Task[], undefined>({
-    stream: () =>
-      this.select().pipe(
-        tap((res) => this.handleError(res?.error)),
-        map((res) => res?.data ?? [])
+  tasks$ = toObservable(this._session).pipe(
+    distinctUntilChanged((prev, curr) => prev?.user?.id === curr?.user?.id),
+    filter(Boolean),
+    switchMap(() => this.select()),
+    tap((res) => this.handleError(res?.error)),
+    map((res) => res?.data ?? []),
+  );
 
-        // With the new change in rxResource. I think this is the advantage.
-        // I dont explcitly have to catch the error. value() throws it.
-        // NOTE: Only thing I have to remember is to check hasValue; "everytime" before accessing it!!
-
-        // catchError((err: Error) => {
-        //   throw err;
-        // })
-      ),
+  private tasksResource = rxResource<Task[], Session | null>({
+    params: () => this._session(),
+    stream: (params) => {
+      if (!params.params) return of(this.tasksLocalService._tasks());
+      return this.tasks$;
+    },
   }).asReadonly();
 
-  // What's happening here?
-  // I am throwing the error in the resource. It has been thrown by .value()
-  public _tasks = linkedSignal<Task[]>(() => {
+  status = this.tasksResource.status;
+
+  private _tasks = linkedSignal<Task[]>(() => {
     if (this.tasksResource.hasValue()) return this.tasksResource.value();
     return [];
   });
 
-  tasksLoading = this.tasksResource.isLoading;
-  tasksError = this.tasksResource.error;
-
   constructor() {
     super();
     effect(() => {
+      if (!this._session()) this._tasks.set(this.tasksLocalService._tasks());
+    });
+    effect(() => {
       this.handleError(this.tasksResource.error());
     });
+  }
+
+  syncLocalTasksToSupabase() {
+    const localTasks = this.tasksLocalService._tasks();
+    if (localTasks.length === 0) {
+      return EMPTY;
+    }
+
+    const tasksToInsert: TaskInsert[] = localTasks.map((task) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { id, user_id, ...rest } = task;
+      return rest;
+    });
+
+    return this.insert(tasksToInsert).pipe(
+      tap({
+        next: (res) => {
+          if (res.data) {
+            this.tasksLocalService._tasks.set([]);
+            this._tasks.update((currentTasks) => [...res.data, ...currentTasks]);
+            this.tasksLocalService._preference.set(true);
+            this.toaster.setToast({
+              message: `${res.data.length} tasks synced successfully!`,
+              type: 'success',
+            });
+          }
+          if (res.error) {
+            this.handleError(res.error);
+          }
+        },
+        error: (error) => {
+          this.handleError(error);
+        },
+      }),
+    );
   }
 
   private _searchQuery = signal<string>('');
@@ -135,7 +131,7 @@ export class TaskService extends TasksSupabase {
 
     return allTasks.filter((task) => {
       const matchesSearch =
-        task.description.toLowerCase().includes(query) ||
+        task.title.toLowerCase().includes(query) ||
         (task.url && task.url.toLowerCase().includes(query));
       const matchesPriority =
         priorities.length === 0 ||
@@ -148,52 +144,67 @@ export class TaskService extends TasksSupabase {
   });
 
   addTask(task: TaskInsert) {
-    return this.insert(task).pipe(
-      tap((res) => {
-        if (res.data) {
-          this._tasks.update((tasks) => [...res.data, ...tasks]);
-        }
-        this.toaster.setToast({
-          message: 'Task added successfully',
-          type: 'success',
-        });
-      })
-    );
+    if (!this._session()) return this.tasksLocalService.addTask(task);
+    else {
+      return this.insert(task).pipe(
+        tap((res) => {
+          if (res.error) {
+            this.toaster.setToast({
+              message: res.error.message || 'Something went wrong!',
+              type: 'error',
+            });
+          }
+          if (res.data) {
+            this._tasks.update((tasks) => [...res.data, ...tasks]);
+            this.toaster.setToast({
+              message: 'Task added successfully',
+              type: 'success',
+            });
+          }
+        }),
+      );
+    }
   }
 
   updateTask(updatedTask: TaskUpdate) {
-    return this.update(updatedTask.id!, updatedTask).pipe(
-      tap((res) => {
-        if (res.data) {
-          this._tasks.update((tasks) =>
-            tasks.map((task) => (task.id === updatedTask.id ? res.data![0] : task))
-          );
-        }
-        this.toaster.setToast({
-          message: 'Task updated successfully',
-          type: 'info',
-        });
-      })
-    );
+    if (!this._session()) return this.tasksLocalService.updateTask(updatedTask);
+    else {
+      return this.update(updatedTask.id!, updatedTask).pipe(
+        tap((res) => {
+          if (res.data) {
+            this._tasks.update((tasks) =>
+              tasks.map((task) => (task.id === updatedTask.id ? res.data![0] : task)),
+            );
+          }
+          this.toaster.setToast({
+            message: 'Task updated successfully',
+            type: 'info',
+          });
+        }),
+      );
+    }
   }
 
   deleteTask(id: number) {
-    return this.delete(id).subscribe({
-      next: () => {
-        this._tasks.update((tasks) => tasks.filter((task) => task.id !== id));
-        this.toaster.setToast({
-          message: 'Task deleted successfully',
-          type: 'info',
-        });
-      },
-      error: (error) => {
-        console.error('Error deleting task:', error);
-        this.toaster.setToast({
-          message: 'Failed to delete error',
-          type: 'error',
-        });
-      },
-    });
+    if (!this._session()) return this.tasksLocalService.deleteTask(id);
+    else {
+      return this.delete(id).subscribe({
+        next: () => {
+          this._tasks.update((tasks) => tasks.filter((task) => task.id !== id));
+          this.toaster.setToast({
+            message: 'Task deleted successfully',
+            type: 'info',
+          });
+        },
+        error: (error) => {
+          console.error('Error deleting task:', error);
+          this.toaster.setToast({
+            message: 'Failed to delete error',
+            type: 'error',
+          });
+        },
+      });
+    }
   }
 
   setSearchQuery(query: string) {

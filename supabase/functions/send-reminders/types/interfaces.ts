@@ -1,17 +1,20 @@
-interface Task {
-  id: string;
+export interface Task {
+  id: number;
+  title: string;
   description: string;
   reminderTime: string;
-  user_email: string;
-  whatsapp_number?: string;
   url?: string;
   is_reminder_sent: boolean;
-  is_whatsapp_reminder_sent: boolean;
   completed: boolean;
 }
 
-interface GroupedRecipient {
+export interface CategorizedTasks {
+  overdue: Task[];
+  approaching: Task[];
+  today: Task[];
+}
+
+export interface GroupedRecipient {
   email?: string;
-  whatsapp?: string;
-  tasks: Task[];
+  tasks: CategorizedTasks;
 }

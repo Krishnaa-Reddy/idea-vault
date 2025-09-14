@@ -23,21 +23,15 @@ export class HighlightBadge implements AfterViewInit {
   private badgeRef?: ComponentRef<NewBadge>;
 
   ngAfterViewInit(): void {
-
-    if(this.highlightBadge()) {
+    if (this.highlightBadge()) {
       this.renderer.setStyle(this.el.nativeElement, 'position', 'relative');
       this.badgeRef = this.vcr.createComponent(NewBadge);
-  
-      this.renderer.appendChild(
-        this.el.nativeElement,
-        this.badgeRef.location.nativeElement
-      );
-  
+
+      this.renderer.appendChild(this.el.nativeElement, this.badgeRef.location.nativeElement);
+
       this.badgeRef.changeDetectorRef.detectChanges();
     } else {
       this.vcr.clear();
     }
-
-
   }
 }
