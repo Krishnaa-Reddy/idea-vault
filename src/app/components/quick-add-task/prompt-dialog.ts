@@ -45,7 +45,7 @@ import { TasksLocalService } from '../../services/tasks-local.service';
           <button hlmAlertDialogCancel (click)="handleMaybelater(); ctx.close()">
             Maybe, Later!
           </button>
-          <button hlmAlertDialogAction (click)="saveTasks()" variant="destructive">
+          <button hlmAlertDialogAction (click)="saveTasks()">
             {{ action() }}
           </button>
         </hlm-alert-dialog-footer>

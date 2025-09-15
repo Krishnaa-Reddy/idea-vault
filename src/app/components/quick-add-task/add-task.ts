@@ -16,7 +16,6 @@ import { HlmFormFieldModule } from '@spartan-ng/helm/form-field';
 import { HlmIcon } from '@spartan-ng/helm/icon';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { TaskFormService } from '../../services/task-form';
-import { TaskService } from '../../services/task.service';
 import { TaskForm } from '../shared/task-form';
 
 @Component({
@@ -60,7 +59,6 @@ import { TaskForm } from '../shared/task-form';
   `,
 })
 export class AddTask {
-  private _taskService = inject(TaskService);
   private _taskFormService = inject(TaskFormService);
   invalidTaskForm = this._taskFormService._invalidTaskForm;
 
@@ -70,9 +68,7 @@ export class AddTask {
   addTask() {
     if (!this.invalidTaskForm()) {
       this.submitTask.set('Submitting...');
-      const newTask = this._taskFormService.constructTaskInsert();
-      this._taskService.addTask(newTask).subscribe({
-        error: (er) => console.log('Something went wrong! Please try later.', er),
+      this._taskFormService.addTask().subscribe({
         complete: () => {
           this.submitTask.set('Submit');
           this._taskFormService.taskGroup.reset();

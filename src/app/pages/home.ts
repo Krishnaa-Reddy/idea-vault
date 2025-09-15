@@ -1,12 +1,23 @@
-import { Component } from '@angular/core';
+import { NgClass } from '@angular/common';
+import { Component, effect, inject, signal } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideActivity, lucideFlame, lucideGithub, lucideLeaf } from '@ng-icons/lucide';
+import { HlmButton } from '@spartan-ng/helm/button';
+import { TaskFormService } from '../services/task-form';
 import { priorityIcon } from '../utils';
+import { HlmSpinner } from './../../../libs/spartan-ui/ui-spinner-helm/src/lib/hlm-spinner';
+import { Priority } from './../core/models/task.interface';
+
+interface PriorityItem {
+  value: Priority;
+  icon: { icon: string; color: string };
+}
 
 @Component({
   selector: 'home-page',
-  imports: [RouterLink, NgIcon],
+  imports: [RouterLink, NgIcon, NgClass, ReactiveFormsModule, HlmSpinner, HlmButton],
   providers: [provideIcons({ lucideFlame, lucideActivity, lucideLeaf, lucideGithub })],
   template: `
     <div class="min-h-screen">
@@ -65,57 +76,53 @@ import { priorityIcon } from '../utils';
                   <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
                   <div class="w-3 h-3 rounded-full bg-green-400"></div>
                 </div>
-                <div class="text-sm text-gray-500 dark:text-gray-400 ml-4">Quick Add</div>
+                <div class="text-sm text-gray-500 dark:text-gray-400 ml-4">Quick Add Task</div>
               </div>
-              <div class="p-8">
+              <form [formGroup]="taskGroup" class="p-8">
                 <div class="mb-4">
                   <input
+                    required
+                    formControlName="title"
                     type="text"
                     placeholder="Paste a URL or type a task..."
                     class="w-full p-4 text-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    readonly
                   />
                 </div>
                 <div class="flex justify-between items-center">
                   <div class="flex gap-2">
-                    <span
-                      class="px-3 py-1 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 rounded-full text-sm font-medium flex items-center"
-                    >
-                      <ng-icon
-                        [name]="priorityIcon('High').icon"
-                        [color]="priorityIcon('High').color"
-                        class="mr-1"
-                      ></ng-icon>
-                      High
-                    </span>
-                    <span
-                      class="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-full text-sm flex items-center"
-                    >
-                      <ng-icon
-                        [name]="priorityIcon('Medium').icon"
-                        [color]="priorityIcon('Medium').color"
-                        class="mr-1"
-                      ></ng-icon>
-                      Medium
-                    </span>
-                    <span
-                      class="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-full text-sm flex items-center"
-                    >
-                      <ng-icon
-                        [name]="priorityIcon('Low').icon"
-                        [color]="priorityIcon('Low').color"
-                        class="mr-1"
-                      ></ng-icon>
-                      Low
-                    </span>
+                    @for (priority of priorities; track $index; let i = $index) {
+                      <button
+                        (click)="onClick(priority.value)"
+                        [ngClass]="{
+                          'px-3 py-1 bg-gray-100 cursor-pointer dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-full text-sm flex items-center': true,
+                          'ring ring-blue-600 dark:ring-blue-400 ':
+                            selectedPriority() === priority.value,
+                        }"
+                      >
+                        <ng-icon
+                          [name]="priority.icon.icon"
+                          [color]="priority.icon.color"
+                          class="mr-1"
+                        ></ng-icon>
+                        {{ priority.value }}
+                      </button>
+                    }
                   </div>
                   <button
-                    class="bg-black dark:bg-gray-100 text-white dark:text-gray-900 px-6 py-2 rounded-lg font-medium hover:bg-gray-800 dark:hover:bg-gray-200"
+                    hlmBtn
+                    (click)="addTask()"
+                    [disabled]="taskGroup.invalid || isLoading()"
+                    type="submit"
+                    class="bg-black dark:bg-gray-100 text-white dark:text-gray-900 px-6 py-2 w-32 rounded-lg font-medium hover:bg-gray-800 dark:hover:bg-gray-200"
                   >
-                    Add Task
+                    @if (isLoading()) {
+                      <hlm-spinner class="size-5" />
+                    } @else {
+                      Add Task
+                    }
                   </button>
                 </div>
-              </div>
+              </form>
             </div>
           </div>
         </div>
@@ -146,7 +153,6 @@ import { priorityIcon } from '../utils';
             </p>
           </div>
 
-          <!-- Feature 2 -->
           <div class="text-center p-6 rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-800">
             <div
               class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-xl flex items-center justify-center mx-auto mb-4"
@@ -199,7 +205,38 @@ import { priorityIcon } from '../utils';
   `,
 })
 export class HomePage {
-  priorityIcon(priority: string) {
-    return priorityIcon(priority);
+  priorities: PriorityItem[] = [
+    { value: 'High', icon: priorityIcon('High') },
+    { value: 'Medium', icon: priorityIcon('Medium') },
+    { value: 'Low', icon: priorityIcon('Low') },
+  ];
+  selectedPriority = signal<Priority>('Low');
+  private taskFormService = inject(TaskFormService);
+  isLoading = signal(false);
+
+  taskGroup = this.taskFormService.taskGroup;
+  titleError = this.taskFormService.titleError;
+
+  constructor() {
+    effect(() => {
+      this.taskGroup.patchValue({
+        priority: this.selectedPriority(),
+      });
+    });
+  }
+
+  onClick(value: Priority) {
+    this.selectedPriority.set(value);
+  }
+
+  addTask() {
+    this.isLoading.set(true);
+    this.taskFormService.addTask().subscribe({
+      complete: () => {
+        this.taskFormService.taskGroup.reset();
+        this.isLoading.set(false);
+      },
+    });
+    this.isLoading.set(false);
   }
 }

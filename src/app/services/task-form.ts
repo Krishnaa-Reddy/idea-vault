@@ -10,11 +10,14 @@ import {
   urlForbiddenValidator,
   urlValidator,
 } from '../validators/url-validator.validator';
+import { TaskService } from './task.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TaskFormService implements OnDestroy {
+  private _taskService = inject(TaskService);
+
   readonly taskGroup = inject(NonNullableFormBuilder).group({
     title: [
       '',
@@ -27,7 +30,6 @@ export class TaskFormService implements OnDestroy {
     archived: false,
     completed: false,
   });
-
   _invalidTaskForm = toSignal(this.taskGroup.valueChanges.pipe(map(() => this.taskGroup.invalid)));
   _title = toSignal(this.taskGroup.get('title')?.valueChanges ?? of(null));
 
@@ -64,7 +66,7 @@ export class TaskFormService implements OnDestroy {
     });
   }
 
-  constructTaskInsert(): TaskInsert {
+  private constructTaskInsert(): TaskInsert {
     const formData = this.taskGroup.getRawValue();
     return {
       ...formData,
@@ -86,6 +88,11 @@ export class TaskFormService implements OnDestroy {
       completed: task.completed,
       archived: task.archived,
     });
+  }
+
+  addTask() {
+    const newTask = this.constructTaskInsert();
+    return this._taskService.addTask(newTask);
   }
 
   ngOnDestroy(): void {
