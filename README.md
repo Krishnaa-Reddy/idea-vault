@@ -54,7 +54,6 @@ Visit 👉 `http://localhost:4200/`
 - [Features](/public/docs/FEATURES.md)
 - [Architecture](/public/docs/ARCHITECTURE.md)
 
-
 ## 📦 Deployment
 
 ```bash

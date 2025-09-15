@@ -1,10 +1,11 @@
 import { Component, inject, model, signal } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideCross, lucideInfo, lucideSettings } from '@ng-icons/lucide';
+import { lucideCircleAlert, lucideCross, lucideInfo, lucideSettings } from '@ng-icons/lucide';
 import { BrnSheetClose, BrnSheetContent, BrnSheetTrigger } from '@spartan-ng/brain/sheet';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmIcon } from '@spartan-ng/helm/icon';
 
+import { HlmAlert, HlmAlertDescription, HlmAlertIcon, HlmAlertTitle } from '@spartan-ng/helm/alert';
 import { HlmLabel } from '@spartan-ng/helm/label';
 import {
   HlmSheet,
@@ -40,8 +41,14 @@ import { IvTooltipComponent } from './iv-tooltip';
     HlmSwitch,
     IvTooltipComponent,
     HlmSpinner,
+    HlmAlertDescription,
+    HlmAlert,
+    HlmAlertIcon,
+    HlmAlertTitle,
+    NgIcon,
+    HlmIcon,
   ],
-  providers: [provideIcons({ lucideCross, lucideSettings, lucideInfo })],
+  providers: [provideIcons({ lucideCross, lucideSettings, lucideInfo, lucideCircleAlert })],
   template: `
     <hlm-sheet side="right">
       <iv-tooltip value="Settings" [lazy]="true">
@@ -75,10 +82,20 @@ import { IvTooltipComponent } from './iv-tooltip';
         </div>
         <hlm-sheet-footer>
           <div class="grid gap-4 my-6">
+            <div hlmAlert variant="destructive">
+              <ng-icon hlm hlmAlertIcon name="lucideCircleAlert" />
+              <h4 hlmAlertTitle><b> Smart reminders</b> is disabled for now</h4>
+              <div hlmAlertDescription>
+                <p>
+                  There's a problem from the server side. We are trying to fix this as soon as
+                  possible.
+                </p>
+              </div>
+            </div>
             <div class="flex items-center gap-2">
               <hlm-switch
                 id="enable-smart-reminders"
-                [disabled]="isLoading()"
+                [disabled]="isLoading() || !!session()"
                 [(checked)]="reminderResource.value"
                 (checkedChange)="handleChange($event)"
               />
@@ -126,7 +143,7 @@ export class SettingsSheet {
   }
 
   enableSmartReminders() {
-    if(!this.session()) return;
+    if (!this.session()) return;
     this.isLoading.set(true);
     this.remindersService.updateTaskReminders(this.reminderResource.value()).subscribe({
       next: () => {
@@ -145,7 +162,7 @@ export class SettingsSheet {
       },
       complete: () => {
         this.isLoading.set(false);
-      }
+      },
     });
   }
 }

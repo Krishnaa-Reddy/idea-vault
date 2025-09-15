@@ -26,7 +26,7 @@ export const DATE_FORMAT = 'EEE, MMM d, y';
     UserProfile,
     NgIcon,
     HlmButton,
-    RouterLink
+    RouterLink,
   ],
   providers: [
     provideIcons({ lucideGithub }),
