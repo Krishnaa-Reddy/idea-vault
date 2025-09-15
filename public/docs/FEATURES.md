@@ -2,6 +2,8 @@
 
 ## User Flow
 
+<!-- TODO: Any contributor help is highlt appreciated to improve this duplication -->
+<img src="docs/user-flow.png" alt="User Flow" width="800"/>
 <img src="user-flow.png" alt="User Flow" width="800"/>
 
 ## Core Features (Built)
