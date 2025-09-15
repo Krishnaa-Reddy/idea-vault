@@ -36,7 +36,8 @@ export class UserService {
       }),
     )
       .pipe(
-        tap((_) => this.localPreference.set(false)),
+        tap(() => this.localPreference.set(false)),
+        tap(() => this.toaster.setToast({ message: 'Signed in successfully', type: 'success' })),
         catchError((err: Error) => {
           this.toaster.setToast({
             message: err.message || 'Unknown error during sign in',

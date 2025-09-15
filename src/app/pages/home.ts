@@ -1,4 +1,3 @@
-import { NgOptimizedImage } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -7,7 +6,7 @@ import { priorityIcon } from '../utils';
 
 @Component({
   selector: 'home-page',
-  imports: [RouterLink, NgOptimizedImage, NgIcon],
+  imports: [RouterLink, NgIcon],
   providers: [provideIcons({ lucideFlame, lucideActivity, lucideLeaf, lucideGithub })],
   template: `
     <div class="min-h-screen">
@@ -66,7 +65,7 @@ import { priorityIcon } from '../utils';
                   <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
                   <div class="w-3 h-3 rounded-full bg-green-400"></div>
                 </div>
-                <div class="text-sm text-gray-500 dark:text-gray-400 ml-4">Quick Add Interface</div>
+                <div class="text-sm text-gray-500 dark:text-gray-400 ml-4">Quick Add</div>
               </div>
               <div class="p-8">
                 <div class="mb-4">
@@ -196,39 +195,10 @@ import { priorityIcon } from '../utils';
           </div>
         </div>
       </section>
-
-      <footer class="border-t border-gray-200 dark:border-gray-800 py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="flex flex-col md:flex-row justify-between items-center">
-            <div class="flex items-center space-x-2 mb-4 md:mb-0">
-              <img ngSrc="iv-logo.png" alt="IV Logo" width="30" height="30" />
-              <span class="text-gray-600 dark:text-gray-300"
-                >© 2025 IdeaVault. Never forget again.</span
-              >
-            </div>
-            <div class="flex space-x-6">
-              <a
-                href="#"
-                class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
-                >About</a
-              >
-              <a
-                [href]="REPO_URL"
-                target="_blank"
-                class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
-              >
-                <ng-icon name="lucideGithub" size="24"></ng-icon>
-              </a>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   `,
 })
-export class HomePageComponent {
-  REPO_URL = 'https://github.com/Krishnaa-Reddy/idea-vault';
-
+export class HomePage {
   priorityIcon(priority: string) {
     return priorityIcon(priority);
   }

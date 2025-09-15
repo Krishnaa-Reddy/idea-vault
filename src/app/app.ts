@@ -1,6 +1,8 @@
 import { NgOptimizedImage } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideGithub } from '@ng-icons/lucide';
 import { provideHlmDatePickerConfig } from '@spartan-ng/helm/date-picker';
 import { DateTime } from 'luxon';
 import { SettingsSheet } from './components/shared/settings-sheet';
@@ -21,8 +23,10 @@ export const DATE_FORMAT = 'EEE, MMM d, y';
     ThemeSwitch,
     SettingsSheet,
     UserProfile,
+    NgIcon,
   ],
   providers: [
+    provideIcons({ lucideGithub }),
     provideHlmDatePickerConfig({
       formatDate: (date: Date) => DateTime.fromJSDate(date).toFormat(DATE_FORMAT),
     }),
@@ -47,10 +51,38 @@ export const DATE_FORMAT = 'EEE, MMM d, y';
         <show-sonner />
         <router-outlet></router-outlet>
       </main>
+
+      <footer class="border-t border-gray-200 dark:border-gray-800 py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex flex-col md:flex-row justify-between items-center">
+            <div class="flex items-center space-x-2 mb-4 md:mb-0">
+              <img ngSrc="iv-logo.png" alt="IV Logo" width="30" height="30" />
+              <span class="text-gray-600 dark:text-gray-300"
+                >© 2025 IdeaVault. Never forget again.</span
+              >
+            </div>
+            <div class="flex space-x-6">
+              <a
+                href="/about"
+                class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                >About</a
+              >
+              <a
+                [href]="REPO_URL"
+                target="_blank"
+                class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+              >
+                <ng-icon name="lucideGithub" size="24"></ng-icon>
+              </a>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   `,
 })
 export class App {
+  REPO_URL = 'https://github.com/Krishnaa-Reddy/idea-vault';
   protected readonly title = signal('idea-vault');
   private _themeService = inject(ThemeService);
 

@@ -55,7 +55,8 @@
                 "input": "public"
               }
             ],
-            "styles": ["src/styles.css"]
+            "styles": ["src/styles.css"],
+            "scripts": ["node_modules/emoji-toolkit/lib/js/joypixels.min.js"]
           },
           "configurations": {
             "production": {

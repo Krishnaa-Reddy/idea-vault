@@ -15,16 +15,16 @@ import { HlmCommandImports } from '@spartan-ng/helm/command';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
-import { Priority, Status } from '../../core/models/task.interface';
-import { isToday, TaskService } from '../../services/task.service';
-import { DATE_FORMAT } from './../../app';
-import { priorityIcon } from './../../utils/priority-icon';
-import { AddTask } from './add-task';
-import { SaveLocalTasksDialog } from './prompt-dialog';
-import { TasksList } from './tasks-list';
+import { DATE_FORMAT } from '../app';
+import { AddTask } from '../components/quick-add-task/add-task';
+import { SaveLocalTasksDialog } from '../components/quick-add-task/prompt-dialog';
+import { TasksList } from '../components/quick-add-task/tasks-list';
+import { Priority, Status } from '../core/models/task.interface';
+import { isToday, TaskService } from '../services/task.service';
+import { priorityIcon } from '../utils/priority-icon';
 
 @Component({
-  selector: 'spartan-all-tasks',
+  selector: 'all-tasks',
   imports: [
     BrnCommandImports,
     HlmCommandImports,
@@ -125,7 +125,7 @@ import { TasksList } from './tasks-list';
     </section>
   `,
 })
-export class TasksComponent {
+export class TasksPage {
   private _taskService = inject(TaskService);
   tasks = this._taskService.filteredTasks;
   tasksStatus = this._taskService.status;

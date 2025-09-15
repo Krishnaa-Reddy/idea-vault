@@ -1,11 +1,13 @@
 import { Routes } from '@angular/router';
-import { TasksComponent } from './components/quick-add-task/all-tasks';
 import { MultipleForms } from './components/test-form';
-import { HomePageComponent } from './pages/home-page.component';
+import { AboutPage } from './pages/about';
+import { TasksPage } from './pages/all-tasks';
+import { HomePage } from './pages/home';
 
 export const routes: Routes = [
-  { path: '', component: HomePageComponent, pathMatch: 'full', title: 'IdeaVault - Home' },
-  { path: 'tasks', component: TasksComponent, title: 'IdeaVault - Tasks' },
+  { path: '', component: HomePage, pathMatch: 'full', title: 'IdeaVault - Home' },
+  { path: 'tasks', component: TasksPage, title: 'IdeaVault - Tasks' },
   { path: 'form', component: MultipleForms, title: 'IdeaVault - Test Form' },
+  { path: 'about', component: AboutPage, title: 'IdeaVault - Features & Architecture' },
   { path: '**', redirectTo: '', pathMatch: 'full' },
 ];

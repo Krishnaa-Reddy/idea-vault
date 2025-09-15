@@ -49,6 +49,12 @@ Visit 👉 `http://localhost:4200/`
 
 ---
 
+## 📚 Documentation
+
+- [Features](/public/docs/FEATURES.md)
+- [Architecture](/public/docs/ARCHITECTURE.md)
+
+
 ## 📦 Deployment
 
 ```bash
