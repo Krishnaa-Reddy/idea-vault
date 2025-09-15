@@ -3,6 +3,7 @@ import { Component, inject, signal } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideGithub } from '@ng-icons/lucide';
+import { HlmButton } from '@spartan-ng/helm/button';
 import { provideHlmDatePickerConfig } from '@spartan-ng/helm/date-picker';
 import { DateTime } from 'luxon';
 import { SettingsSheet } from './components/shared/settings-sheet';
@@ -24,6 +25,8 @@ export const DATE_FORMAT = 'EEE, MMM d, y';
     SettingsSheet,
     UserProfile,
     NgIcon,
+    HlmButton,
+    RouterLink
   ],
   providers: [
     provideIcons({ lucideGithub }),
@@ -40,6 +43,7 @@ export const DATE_FORMAT = 'EEE, MMM d, y';
             <h1 class="text-xl font-semibold text-foreground">IdeaVault</h1>
           </a>
           <div class="flex items-center gap-2">
+            <a hlmBtn variant="link" routerLink="/about" class="cursor-pointer">Docs</a>
             <theme-switch />
             <iv-settings-sheet />
             <iv-user-profile />

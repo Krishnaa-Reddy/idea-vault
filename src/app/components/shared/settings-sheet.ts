@@ -1,4 +1,4 @@
-import { Component, inject, model } from '@angular/core';
+import { Component, inject, model, signal } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCross, lucideInfo, lucideSettings } from '@ng-icons/lucide';
 import { BrnSheetClose, BrnSheetContent, BrnSheetTrigger } from '@spartan-ng/brain/sheet';
@@ -15,6 +15,7 @@ import {
   HlmSheetTitle,
 } from '@spartan-ng/helm/sheet';
 import { HlmSwitch } from '@spartan-ng/helm/switch';
+import { HlmSpinner } from '../../../../libs/spartan-ui/ui-spinner-helm/src/lib/hlm-spinner';
 import { RemindersService } from '../../services/reminders.service';
 import { ToasterService } from '../../services/toaster-service';
 import { UserService } from '../../services/users';
@@ -38,6 +39,7 @@ import { IvTooltipComponent } from './iv-tooltip';
     HlmIcon,
     HlmSwitch,
     IvTooltipComponent,
+    HlmSpinner,
   ],
   providers: [provideIcons({ lucideCross, lucideSettings, lucideInfo })],
   template: `
@@ -76,6 +78,7 @@ import { IvTooltipComponent } from './iv-tooltip';
             <div class="flex items-center gap-2">
               <hlm-switch
                 id="enable-smart-reminders"
+                [disabled]="isLoading()"
                 [(checked)]="reminderResource.value"
                 (checkedChange)="handleChange($event)"
               />
@@ -86,7 +89,11 @@ import { IvTooltipComponent } from './iv-tooltip';
             </div>
           </div>
           <button hlmBtn type="submit" (click)="enableSmartReminders(); ctx.close()">
-            Save Changes
+            @if (isLoading()) {
+              <hlm-spinner class="size-5" />
+            } @else {
+              Save Changes
+            }
           </button>
           <button brnSheetClose hlmBtn variant="outline">Close</button>
         </hlm-sheet-footer>
@@ -100,6 +107,8 @@ export class SettingsSheet {
   session = inject(UserService)._session;
   remindersService = inject(RemindersService);
   reminderResource = this.remindersService.reminderResource;
+
+  isLoading = signal(false);
 
   handleChange(state: boolean) {
     if (state && !this.session()) {
@@ -117,6 +126,26 @@ export class SettingsSheet {
   }
 
   enableSmartReminders() {
-    this.remindersService.updateTaskReminders(this.reminderResource.value()).subscribe();
+    if(!this.session()) return;
+    this.isLoading.set(true);
+    this.remindersService.updateTaskReminders(this.reminderResource.value()).subscribe({
+      next: () => {
+        this._toaster.setToast({
+          message: 'Updated changes successfully',
+          type: 'success',
+          position: 'top-right',
+        });
+      },
+      error: (error) => {
+        this._toaster.setToast({
+          message: error.message || 'Failed to update changes',
+          type: 'error',
+          position: 'top-right',
+        });
+      },
+      complete: () => {
+        this.isLoading.set(false);
+      }
+    });
   }
 }

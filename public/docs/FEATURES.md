@@ -1,11 +1,5 @@
 # IdeaVault – Features
 
-## User Flow
-
-<!-- TODO: Any contributor help is highlt appreciated to improve this duplication -->
-<img src="docs/user-flow.png" alt="User Flow" width="800"/>
-<img src="user-flow.png" alt="User Flow" width="800"/>
-
 ## Core Features (Built)
 
 - Add, edit, delete tasks (with title, URL, description, dueDate, priority, status)
@@ -13,8 +7,11 @@
 - Theming: Dark / Light
 - Daily email reminders (9 AM, categorized as Today, Approaching, Overdue)
 - LocalStorage vs Supabase task management
-- Google Login authentication
-- Smart Reminders toggle
+    - LocalStorage: tasks are stored locally in the browser
+    - Supabase: tasks are stored in the Supabase database
+    - Syncing: tasks can be synced between the two. This is useful when you dont want to login in.
+- Google Login Provider for authentication
+- Settings: enable/disable daily reminders
 - Clean UI (Spartan UI + Tailwind)
 
 ## Planned
@@ -26,3 +23,9 @@
 - Labels / categories with animationns
 - Unique & uniform theme (inspiration: [TechBible.io](http://techbible.io/) and many more)
 - AI features (Gemini: suggestions/autocomplete)
+
+## User Flow
+
+<!-- TODO: Any contributor help is highlt appreciated to improve this duplication -->
+<img src="docs/user-flow.png" alt="User Flow" width="800"/>
+<img src="user-flow.png" alt="User Flow" width="800"/>
