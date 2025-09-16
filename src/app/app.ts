@@ -26,7 +26,6 @@ export const DATE_FORMAT = 'EEE, MMM d, y';
     UserProfile,
     NgIcon,
     HlmButton,
-    RouterLink,
   ],
   providers: [
     provideIcons({ lucideGithub }),
@@ -65,12 +64,10 @@ export const DATE_FORMAT = 'EEE, MMM d, y';
                 >© 2025 IdeaVault. Never forget again.</span
               >
             </div>
-            <div class="flex space-x-6">
-              <a
-                href="/about"
-                class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
-                >About</a
-              >
+            <div class="flex space-x-6 items-center justify-center">
+              <button hlmBtn variant="link" routerLink="/about" class="cursor-pointer text-accent-foreground">
+                About
+              </button>
               <a
                 [href]="REPO_URL"
                 target="_blank"

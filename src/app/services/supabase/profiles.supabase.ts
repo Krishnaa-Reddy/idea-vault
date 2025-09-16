@@ -2,29 +2,29 @@ import { from, shareReplay } from 'rxjs';
 import { Tables } from '../../../database.types';
 import { _supabase } from './supabase-client';
 
-const REMINDERS = 'reminders';
+const PROFILES = 'profiles';
 
-export class RemindersSupabase {
+export class ProfilesSupabase {
   protected select(userid: string) {
     return from(
       _supabase
-        .from(REMINDERS)
+        .from(PROFILES)
         .select()
-        .eq('user_id', userid)
+        .eq('id', userid)
         .single()
-        .overrideTypes<Tables<'reminders'>>(),
+        .overrideTypes<Tables<'profiles'>>(),
     ).pipe(shareReplay(1));
   }
 
   protected update(value: boolean, userid: string) {
     return from(
       _supabase
-        .from('reminders')
-        .update({ enable_reminder: value })
-        .eq('user_id', userid)
+        .from(PROFILES)
+        .update({ enable_reminders: value })
+        .eq('id', userid)
         .select()
         .single()
-        .overrideTypes<Tables<'reminders'>>(),
+        .overrideTypes<Tables<'profiles'>>(),
     );
   }
 }

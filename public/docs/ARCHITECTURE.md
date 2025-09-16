@@ -10,7 +10,7 @@
 ## ⚙️ Backend
 
 - Supabase (DB + auth + edge functions)
-- Cron jobs for reminders
+- Cron jobs for samrt reminders
 - _Redis (future: cache/queue; if the app scales by any chance)_
 
 ## 🔑 Authentication

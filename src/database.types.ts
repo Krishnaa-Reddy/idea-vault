@@ -14,6 +14,27 @@ export interface Database {
   }
   public: {
     Tables: {
+      profiles: {
+        Row: {
+          email: string | null
+          enable_reminders: boolean
+          id: string
+          name: string | null
+        }
+        Insert: {
+          email?: string | null
+          enable_reminders?: boolean
+          id: string
+          name?: string | null
+        }
+        Update: {
+          email?: string | null
+          enable_reminders?: boolean
+          id?: string
+          name?: string | null
+        }
+        Relationships: []
+      }
       reminder_job_logs: {
         Row: {
           error: string | null
@@ -53,24 +74,6 @@ export interface Database {
           run_at?: string | null
           started_at?: string | null
           status_code?: number | null
-        }
-        Relationships: []
-      }
-      reminders: {
-        Row: {
-          enable_reminder: boolean
-          id: number
-          user_id: string
-        }
-        Insert: {
-          enable_reminder?: boolean
-          id?: never
-          user_id: string
-        }
-        Update: {
-          enable_reminder?: boolean
-          id?: never
-          user_id?: string
         }
         Relationships: []
       }

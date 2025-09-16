@@ -5,7 +5,6 @@ import { BrnSheetClose, BrnSheetContent, BrnSheetTrigger } from '@spartan-ng/bra
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmIcon } from '@spartan-ng/helm/icon';
 
-import { HlmAlert, HlmAlertDescription, HlmAlertIcon, HlmAlertTitle } from '@spartan-ng/helm/alert';
 import { HlmLabel } from '@spartan-ng/helm/label';
 import {
   HlmSheet,
@@ -17,7 +16,7 @@ import {
 } from '@spartan-ng/helm/sheet';
 import { HlmSwitch } from '@spartan-ng/helm/switch';
 import { HlmSpinner } from '../../../../libs/spartan-ui/ui-spinner-helm/src/lib/hlm-spinner';
-import { RemindersService } from '../../services/reminders.service';
+import { ProfilesService } from '../../services/profiles.service';
 import { ToasterService } from '../../services/toaster-service';
 import { UserService } from '../../services/users';
 import { IvTooltipComponent } from './iv-tooltip';
@@ -41,13 +40,9 @@ import { IvTooltipComponent } from './iv-tooltip';
     HlmSwitch,
     IvTooltipComponent,
     HlmSpinner,
-    HlmAlertDescription,
-    HlmAlert,
-    HlmAlertIcon,
-    HlmAlertTitle,
     NgIcon,
-    HlmIcon,
-  ],
+    HlmIcon
+],
   providers: [provideIcons({ lucideCross, lucideSettings, lucideInfo, lucideCircleAlert })],
   template: `
     <hlm-sheet side="right">
@@ -82,20 +77,10 @@ import { IvTooltipComponent } from './iv-tooltip';
         </div>
         <hlm-sheet-footer>
           <div class="grid gap-4 my-6">
-            <div hlmAlert variant="destructive">
-              <ng-icon hlm hlmAlertIcon name="lucideCircleAlert" />
-              <h4 hlmAlertTitle><b> Smart reminders</b> is disabled for now</h4>
-              <div hlmAlertDescription>
-                <p>
-                  There's a problem from the server side. We are trying to fix this as soon as
-                  possible.
-                </p>
-              </div>
-            </div>
             <div class="flex items-center gap-2">
               <hlm-switch
                 id="enable-smart-reminders"
-                [disabled]="isLoading() || !!session()"
+                [disabled]="isLoading()"
                 [(checked)]="reminderResource.value"
                 (checkedChange)="handleChange($event)"
               />
@@ -122,8 +107,8 @@ export class SettingsSheet {
   checked = model(false);
   _toaster = inject(ToasterService);
   session = inject(UserService)._session;
-  remindersService = inject(RemindersService);
-  reminderResource = this.remindersService.reminderResource;
+  profiles = inject(ProfilesService);
+  reminderResource = this.profiles.reminderResource;
 
   isLoading = signal(false);
 
@@ -145,7 +130,7 @@ export class SettingsSheet {
   enableSmartReminders() {
     if (!this.session()) return;
     this.isLoading.set(true);
-    this.remindersService.updateTaskReminders(this.reminderResource.value()).subscribe({
+    this.profiles.updateTaskReminders(this.reminderResource.value()).subscribe({
       next: () => {
         this._toaster.setToast({
           message: 'Updated changes successfully',
@@ -155,7 +140,8 @@ export class SettingsSheet {
       },
       error: (error) => {
         this._toaster.setToast({
-          message: error.message || 'Failed to update changes',
+          message: 'Failed to update reminder status',
+          description: error.message,
           type: 'error',
           position: 'top-right',
         });

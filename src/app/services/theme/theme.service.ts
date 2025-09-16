@@ -14,7 +14,7 @@ export type Theme = 'light' | 'dark';
 export class ThemeService implements OnDestroy {
   private readonly _document = inject(DOCUMENT);
 
-  private _theme = signal<Theme>((localStorage.getItem('theme') || 'light') as Theme);
+  private _theme = signal<Theme>((localStorage.getItem('theme') || 'dark') as Theme);
   public readonly theme$ = toObservable(this._theme);
 
   themeChangeEffect = effect(() => {

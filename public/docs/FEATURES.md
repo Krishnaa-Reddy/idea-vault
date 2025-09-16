@@ -7,9 +7,9 @@
 - Theming: Dark / Light
 - Daily email reminders (9 AM, categorized as Today, Approaching, Overdue)
 - LocalStorage vs Supabase task management
-  - LocalStorage: tasks are stored locally in the browser
+  - LocalStorage: tasks are stored locally in the browser. This is useful when you dont want to login in.
   - Supabase: tasks are stored in the Supabase database
-  - Syncing: tasks can be synced between the two. This is useful when you dont want to login in.
+  - Syncing: tasks can be synced between the two.
 - Google Login Provider for authentication
 - Settings: enable/disable daily reminders
 - Clean UI (Spartan UI + Tailwind)

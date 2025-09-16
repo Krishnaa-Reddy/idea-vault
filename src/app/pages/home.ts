@@ -21,7 +21,7 @@ interface PriorityItem {
   providers: [provideIcons({ lucideFlame, lucideActivity, lucideLeaf, lucideGithub })],
   template: `
     <div class="min-h-screen">
-      <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+      <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-16">
         <div class="text-center max-w-4xl mx-auto">
           <div class="mb-8">
             <span
@@ -88,8 +88,8 @@ interface PriorityItem {
                     class="w-full p-4 text-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
-                <div class="flex justify-between items-center">
-                  <div class="flex gap-2">
+                <div class="flex justify-between sm:items-center items-start flex-col sm:flex-row gap-4">
+                  <div class="flex gap-2 flex-1 sm:flex-0 flex-wrap sm:flex-nowrap">
                     @for (priority of priorities; track $index; let i = $index) {
                       <button
                         (click)="onClick(priority.value)"
@@ -113,7 +113,7 @@ interface PriorityItem {
                     (click)="addTask()"
                     [disabled]="taskGroup.invalid || isLoading()"
                     type="submit"
-                    class="bg-black dark:bg-gray-100 text-white dark:text-gray-900 px-6 py-2 w-32 rounded-lg font-medium hover:bg-gray-800 dark:hover:bg-gray-200"
+                    class="bg-black dark:bg-gray-100 text-white dark:text-gray-900 px-6 py-2 w-32 rounded-lg font-medium hover:bg-gray-800 dark:hover:bg-gray-200 self-end sm:self-auto"
                   >
                     @if (isLoading()) {
                       <hlm-spinner class="size-5" />
@@ -183,16 +183,16 @@ interface PriorityItem {
         </div>
       </section>
 
-      <section class="bg-gray-50 dark:bg-gray-900 py-16">
+      <section class="bg-gray-50 dark:bg-gray-900 py-16 rounded-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="grid md:grid-cols-3 gap-8 text-center">
             <div>
               <div class="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">10s</div>
-              <div class="text-gray-600 dark:text-gray-300">Average capture time</div>
+              <div class="dark:text-gray-300">Average capture time</div>
             </div>
             <div>
               <div class="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">99%</div>
-              <div class="text-gray-600 dark:text-gray-300">Reminder delivery rate</div>
+              <div class="dark:text-gray-300">Reminder delivery rate</div>
             </div>
             <div>
               <div class="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">0</div>

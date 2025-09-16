@@ -26,10 +26,4 @@ export class TasksSupabase {
   protected update(id: number, data: TaskUpdate) {
     return from(_supabase.from(TASKS).update(data).eq('id', id).select().overrideTypes<Task[]>());
   }
-
-  protected updateReminderStatus(value: boolean, userid: string) {
-    return from(
-      _supabase.from('reminders').update({ enable_reminder: value }).eq('user_id', userid),
-    );
-  }
 }

@@ -50,7 +50,7 @@ export interface TaskFormEvent {
   ],
   providers: [provideIcons({ lucideCheck, lucidePlus, lucidePencil })],
   template: `
-    <form class="flex flex-col gap-6 w-md" [formGroup]="taskGroup">
+    <form class="flex flex-col gap-6 w-xs sm:w-md" [formGroup]="taskGroup">
       <hlm-form-field>
         <input
           hlmInput
