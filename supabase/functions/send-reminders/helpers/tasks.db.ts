@@ -5,6 +5,8 @@ import { SupabaseClient } from 'npm:@supabase/supabase-js';
  * @param supabaseClient The Supabase client instance.
  * @param taskIds The IDs of the tasks to update.
  * @param emailSent Whether the email was sent successfully.
+ * 
+ * @deprecated we will not do this. Since CRON job control the number of times we sending email reminders.
  */
 export async function updateTaskStatus(
   supabaseClient: SupabaseClient,

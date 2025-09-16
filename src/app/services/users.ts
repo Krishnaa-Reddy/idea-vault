@@ -53,6 +53,7 @@ export class UserService {
     from(_supabase.auth.signOut()).subscribe({
       next: (res) => {
         if (res.error) throw new Error(res.error.message);
+        this.localPreference.set(true);
         this.toaster.setToast({
           message: 'Signed out successfully',
           type: 'success',

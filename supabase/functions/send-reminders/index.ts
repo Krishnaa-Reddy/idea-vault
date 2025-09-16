@@ -1,15 +1,14 @@
 // Setup Supabase Edge Runtime types
-import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import 'https://deno.land/std@0.177.0/http/server.ts';
+import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 
 import { createClient } from 'npm:@supabase/supabase-js';
 import { Resend } from 'npm:resend';
 
-import { updateTaskStatus } from './helpers/tasks.db.ts';
-import { formatEmailHtml, sendEmailReminder } from './services/email/index.ts';
+import { categorizeTasks } from './helpers/categorize.ts';
 import { handleJobStatusUpdate } from './helpers/reminder_job_logs.db.ts';
 import { getUsersWithTasks } from './helpers/users.db.ts';
-import { categorizeTasks } from './helpers/categorize.ts';
+import { formatEmailHtml, sendEmailReminder } from './services/email/index.ts';
 
 Deno.serve(async (req) => {
   const supabaseClient = createClient(
@@ -74,9 +73,6 @@ Deno.serve(async (req) => {
       const { subject, html } = formatEmailHtml(categorizedTasks, YOUR_WEBSITE_BASE_URL);
       emailSent = await sendEmailReminder(resend, userEmail, subject, html);
       if (emailSent) emailsSentCount++;
-
-      const taskIdsToUpdate = user.tasks.map((t) => t.id);
-      await updateTaskStatus(supabaseClient, taskIdsToUpdate, emailSent);
     }
 
     const responseMessage = `Processed ${recipientsProcessedCount} recipients, sent ${emailsSentCount} emails.`;
